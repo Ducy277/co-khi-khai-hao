@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================================
+// CATALOG
+// ============================================================
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  slug        String     @unique
+  description String?
+  image       String?
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  seoTitle    String?
+  seoDesc     String?
+
+  parentId    Int?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+
+  products    Product[]
+  attributes  CategoryAttribute[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([parentId])
+  @@index([slug])
+}
+
+model Brand {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  logo      String?
+  isActive  Boolean   @default(true)
+  sortOrder Int       @default(0)
+
+  products  Product[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([slug])
+}
+
+// ============================================================
+// PRODUCT
+// ============================================================
+
+model Product {
+  id              Int      @id @default(autoincrement())
+  name            String
+  slug            String   @unique
+  sku             String   @unique
+  description     String?
+  price           Decimal? @db.Decimal(15, 0)
+  priceOnRequest  Boolean  @default(false)
+  isFeatured      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  seoTitle        String?
+  seoDesc         String?
+
+  categoryId      Int
+  category        Category @relation(fields: [categoryId], references: [id])
+
+  brandId         Int?
+  brand           Brand?   @relation(fields: [brandId], references: [id])
+
+  images          ProductImage[]
+  attributeValues ProductAttributeValue[]
+  quoteItems      QuoteRequestItem[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([slug])
+  @@index([sku])
+  @@index([isFeatured, isActive])
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  @@index([productId])
+}
+
+// ============================================================
+// ATTRIBUTES (EAV Pattern)
+// ============================================================
+
+model CategoryAttribute {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String
+  unit        String?  // VD: "mm", "kN", "rpm"
+  type        String   // "text" | "number" | "select"
+  filterType  String   // "checkbox" | "range" | "dropdown"
+  isGlobal    Boolean  @default(false) // true = áp dụng mọi danh mục
+  isRequired  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  // Nếu isGlobal=true thì categoryId có thể null
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  options     AttributeOption[]
+  values      ProductAttributeValue[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([isGlobal])
+  @@unique([categoryId, slug])
+}
+
+model AttributeOption {
+  id          Int               @id @default(autoincrement())
+  value       String
+  sortOrder   Int               @default(0)
+
+  attributeId Int
+  attribute   CategoryAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@index([attributeId])
+}
+
+model ProductAttributeValue {
+  id          Int               @id @default(autoincrement())
+  value       String            // Luôn lưu dạng string, parse theo type khi cần
+
+  productId   Int
+  product     Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  attributeId Int
+  attribute   CategoryAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, attributeId])
+  @@index([productId])
+  @@index([attributeId])
+}
+
+// ============================================================
+// QUOTE REQUESTS
+// ============================================================
+
+model QuoteRequest {
+  id           Int                @id @default(autoincrement())
+  customerName String
+  company      String?
+  phone        String
+  email        String?
+  note         String?
+  status       String             @default("new") // "new" | "processing" | "replied"
+
+  items        QuoteRequestItem[]
+
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model QuoteRequestItem {
+  id             Int          @id @default(autoincrement())
+  quantity       Int          @default(1)
+  note           String?
+
+  quoteRequestId Int
+  quoteRequest   QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+
+  productId      Int
+  product        Product      @relation(fields: [productId], references: [id])
+
+  @@index([quoteRequestId])
+  @@index([productId])
+}
+
+// ============================================================
+// CONTENT
+// ============================================================
+
+model SiteContent {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // VD: "hero_title", "about_content", "services_content"
+  value     String
+  type      String   @default("text") // "text" | "html" | "image"
+  label     String?  // Tên hiển thị trong admin
+
+  updatedAt DateTime @updatedAt
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String
+  subtitle  String?
+  image     String
+  link      String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
