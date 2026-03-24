@@ -16,7 +16,7 @@ const productSchema = z.object({
   isActive: z.boolean().default(true),
   seoTitle: z.string().optional().nullable(),
   seoDesc: z.string().optional().nullable(),
-  categoryId: z.number({ required_error: "Vui lòng chọn danh mục" }),
+  categoryId: z.number().min(1, "Vui lòng chọn danh mục"),
   brandId: z.number().optional().nullable(),
   images: z.array(z.object({
     url: z.string(),
@@ -29,7 +29,7 @@ const productSchema = z.object({
 
 export async function createProduct(data: z.infer<typeof productSchema>) {
   const result = productSchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
 
   // Check unique slug and SKU
   const existingSlug = await prisma.product.findUnique({ where: { slug: result.data.slug } });
@@ -66,7 +66,7 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
 
     revalidatePath("/admin/san-pham");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Lỗi tạo sản phẩm:", error);
     return { error: "Có lỗi xảy ra khi thêm sản phẩm." };
   }
@@ -74,7 +74,7 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
 
 export async function updateProduct(data: z.infer<typeof productSchema>) {
   const result = productSchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID sản phẩm." };
 
   const existingSlug = await prisma.product.findUnique({ 
@@ -140,7 +140,7 @@ export async function updateProduct(data: z.infer<typeof productSchema>) {
     revalidatePath("/admin/san-pham");
     revalidatePath(`/admin/san-pham/${id}/edit`);
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Lỗi cập nhật sản phẩm:", error);
     return { error: "Có lỗi xảy ra khi cập nhật sản phẩm." };
   }
@@ -153,7 +153,7 @@ export async function deleteProduct(id: number) {
     });
     revalidatePath("/admin/san-pham");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return { error: "Không thể xóa sản phẩm này (Có thể đã được dùng trong Báo giá)." };
   }

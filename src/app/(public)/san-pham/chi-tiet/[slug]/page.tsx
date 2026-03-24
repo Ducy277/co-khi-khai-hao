@@ -1,10 +1,11 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, ShoppingCart, Award } from "lucide-react";
+import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 import ProductGallery from "@/components/product/product-gallery";
+import AddToQuoteButton from "@/components/quote/add-to-quote-button";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -192,10 +193,17 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* Nút hành động */}
             <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <Button size="lg" className="bg-slate-900 hover:bg-slate-800 text-white shadow-lg w-full h-14 col-span-1 border border-slate-700">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Thêm Giỏ
-              </Button>
+              <AddToQuoteButton
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  sku: product.sku,
+                  price: product.price ? Number(product.price) : null,
+                  priceOnRequest: product.priceOnRequest,
+                  imageUrl: product.images[0]?.url,
+                }}
+              />
               <a href="https://zalo.me/0901234567" target="_blank" rel="noopener noreferrer" className="col-span-1 sm:col-span-1 lg:col-span-1 block w-full">
                 <Button size="lg" className="bg-[#0068FF] hover:bg-blue-600 text-white w-full h-14 font-bold border border-[#0068FF] shadow-lg">
                   <MessageSquare className="w-5 h-5 mr-2" />

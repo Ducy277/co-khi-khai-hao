@@ -15,7 +15,7 @@ const categorySchema = z.object({
 
 export async function createCategory(data: z.infer<typeof categorySchema>) {
   const result = categorySchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
 
   const existing = await prisma.category.findUnique({
     where: { slug: result.data.slug },
@@ -43,7 +43,7 @@ export async function createCategory(data: z.infer<typeof categorySchema>) {
 
 export async function updateCategory(data: z.infer<typeof categorySchema>) {
   const result = categorySchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID danh mục." };
 
   // Ngăn danh mục chọn chính nó làm cha
@@ -92,9 +92,14 @@ export async function deleteCategory(id: number) {
     });
     revalidatePath("/admin/danh-muc");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    if (error.code === "P2003") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2003"
+    ) {
       return { error: "Không thể xóa danh mục này vì đang có sản phẩm hoặc thuộc tính liên kết!" };
     }
     return { error: "Có lỗi xảy ra khi xóa danh mục." };

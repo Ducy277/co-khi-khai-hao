@@ -41,9 +41,9 @@ const formSchema = z.object({
   unit: z.string().optional(),
   type: z.enum(["text", "number", "select"]),
   filterType: z.enum(["checkbox", "range", "dropdown", "none"]),
-  isGlobal: z.boolean().default(false),
+  isGlobal: z.boolean(),
   categoryId: z.string().optional(),
-  sortOrder: z.coerce.number().min(0).default(0),
+  sortOrder: z.number().min(0),
 }).superRefine((data, ctx) => {
   if (!data.isGlobal && (!data.categoryId || data.categoryId === "none")) {
     ctx.addIssue({
@@ -141,6 +141,8 @@ export default function AttributeDialog({ open, onOpenChange, attribute, categor
       ...values,
       categoryId: values.isGlobal || values.categoryId === "none" ? null : Number(values.categoryId),
       unit: values.unit || null,
+      isRequired: attribute?.isRequired ?? false,
+      isActive: attribute?.isActive ?? true,
     };
 
     if (isEditing) {
@@ -324,7 +326,14 @@ export default function AttributeDialog({ open, onOpenChange, attribute, categor
                   <FormItem className="col-span-2">
                     <FormLabel>Thứ tự ưu tiên</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input
+                        type="number"
+                        value={field.value}
+                        onChange={(e) => field.onChange(Number(e.target.value || 0))}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

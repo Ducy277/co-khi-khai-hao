@@ -20,7 +20,7 @@ const attributeSchema = z.object({
 
 export async function createAttribute(data: z.infer<typeof attributeSchema>) {
   const result = attributeSchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
 
   if (!result.data.isGlobal && !result.data.categoryId) {
     return { error: "Thuộc tính không phải Toàn cục bắt buộc phải chọn Danh mục!" };
@@ -45,7 +45,7 @@ export async function createAttribute(data: z.infer<typeof attributeSchema>) {
     });
     revalidatePath("/admin/thuoc-tinh");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return { error: "Có lỗi xảy ra khi thêm thuộc tính." };
   }
@@ -53,7 +53,7 @@ export async function createAttribute(data: z.infer<typeof attributeSchema>) {
 
 export async function updateAttribute(data: z.infer<typeof attributeSchema>) {
   const result = attributeSchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID thuộc tính." };
 
   if (!result.data.isGlobal && !result.data.categoryId) {
@@ -80,7 +80,7 @@ export async function updateAttribute(data: z.infer<typeof attributeSchema>) {
     });
     revalidatePath("/admin/thuoc-tinh");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return { error: "Có lỗi xảy ra khi cập nhật thuộc tính." };
   }
@@ -93,7 +93,7 @@ export async function deleteAttribute(id: number) {
     });
     revalidatePath("/admin/thuoc-tinh");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return { error: "Không thể xóa thuộc tính này (có thể đang được dùng cho sản phẩm)." };
   }

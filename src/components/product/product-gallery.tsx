@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Settings } from "lucide-react";
 
 type ProductImage = {
-  id: string;
+  id: number;
   url: string;
   alt: string | null;
 };

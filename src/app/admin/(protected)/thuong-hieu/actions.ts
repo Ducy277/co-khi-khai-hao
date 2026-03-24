@@ -14,7 +14,7 @@ const brandSchema = z.object({
 export async function createBrand(data: z.infer<typeof brandSchema>) {
   const result = brandSchema.safeParse(data);
   if (!result.success) {
-    return { error: result.error.errors[0].message };
+    return { error: result.error.issues[0]?.message };
   }
 
   const existing = await prisma.brand.findUnique({
@@ -40,7 +40,7 @@ export async function createBrand(data: z.infer<typeof brandSchema>) {
 export async function updateBrand(data: z.infer<typeof brandSchema>) {
   const result = brandSchema.safeParse(data);
   if (!result.success) {
-    return { error: result.error.errors[0].message };
+    return { error: result.error.issues[0]?.message };
   }
 
   if (!result.data.id) return { error: "Thiếu ID thương hiệu." };
@@ -79,9 +79,14 @@ export async function deleteBrand(id: number) {
     });
     revalidatePath("/admin/thuong-hieu");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    if (error.code === "P2003") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2003"
+    ) {
       return { error: "Không thể xóa thương hiệu này vì đang có sản phẩm liên kết!" };
     }
     return { error: "Có lỗi xảy ra khi xóa thương hiệu." };

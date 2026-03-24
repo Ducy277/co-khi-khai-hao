@@ -30,7 +30,7 @@ import { createBrand, updateBrand } from "../actions";
 const formSchema = z.object({
   name: z.string().min(1, "Tên thương hiệu không được để trống"),
   slug: z.string().min(1, "Slug không được để trống").regex(/^[a-z0-9-]+$/, "Slug chỉ được chứa chữ cái viết thường, số và dấu gạch ngang"),
-  sortOrder: z.coerce.number().min(0, "Thứ tự phải lớn hơn hoặc bằng 0").default(0),
+  sortOrder: z.number().min(0, "Thứ tự phải lớn hơn hoặc bằng 0"),
 });
 
 interface BrandDialogProps {
@@ -165,7 +165,14 @@ export default function BrandDialog({ open, onOpenChange, brand }: BrandDialogPr
                 <FormItem>
                   <FormLabel>Thứ tự hiển thị</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value || 0))}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
                   </FormControl>
                   <FormDescription>Số càng nhỏ hiển thị càng trước.</FormDescription>
                   <FormMessage />

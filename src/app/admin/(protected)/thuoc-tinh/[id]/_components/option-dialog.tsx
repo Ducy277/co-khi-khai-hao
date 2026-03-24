@@ -28,7 +28,7 @@ import { createOption, updateOption } from "../actions";
 
 const formSchema = z.object({
   value: z.string().min(1, "Giá trị tuỳ chọn không được trống"),
-  sortOrder: z.coerce.number().default(0),
+  sortOrder: z.number(),
 });
 
 interface OptionDialogProps {
@@ -124,7 +124,14 @@ export default function OptionDialog({ open, onOpenChange, option, attributeId }
                 <FormItem>
                   <FormLabel>Thứ tự hiển thị</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value || 0))}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

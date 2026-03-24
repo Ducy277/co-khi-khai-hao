@@ -92,7 +92,10 @@ export default function ProductForm({ initialData, categories, brands, attribute
     });
   }
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  type ProductFormInput = z.input<typeof formSchema>;
+  type ProductFormOutput = z.output<typeof formSchema>;
+
+  const form = useForm<ProductFormInput, unknown, ProductFormOutput>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || "",
@@ -135,7 +138,7 @@ export default function ProductForm({ initialData, categories, brands, attribute
     return attributes.filter(a => a.isGlobal || a.categoryId === catId);
   }, [watchCategoryId, attributes]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: ProductFormOutput) => {
     setIsPending(true);
 
     const payload = {
@@ -323,7 +326,18 @@ export default function ProductForm({ initialData, categories, brands, attribute
                   <FormItem className="md:col-span-2">
                     <FormLabel>Giá bán (VND)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="VD: 150000" {...field} value={field.value || ""} />
+                      <Input
+                        type="number"
+                        placeholder="VD: 150000"
+                        value={typeof field.value === "number" ? field.value : ""}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          field.onChange(raw === "" ? null : Number(raw));
+                        }}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -374,14 +388,22 @@ export default function ProductForm({ initialData, categories, brands, attribute
               control={form.control}
               name="images"
               render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <ImageUpload value={field.value} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormItem>
+                    <FormControl>
+                      <ImageUpload
+                        value={(field.value || []).map((img, index) => ({
+                          url: img.url,
+                          alt: img.alt || "",
+                          isPrimary: img.isPrimary ?? index === 0,
+                          sortOrder: img.sortOrder ?? index,
+                        }))}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
           </CardContent>
         </Card>
 

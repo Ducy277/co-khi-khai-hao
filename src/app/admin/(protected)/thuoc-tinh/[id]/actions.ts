@@ -13,7 +13,7 @@ const optionSchema = z.object({
 
 export async function createOption(data: z.infer<typeof optionSchema>) {
   const result = optionSchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
 
   // Check unique value within the same attribute
   const existing = await prisma.attributeOption.findFirst({
@@ -39,7 +39,7 @@ export async function createOption(data: z.infer<typeof optionSchema>) {
 
 export async function updateOption(data: z.infer<typeof optionSchema>) {
   const result = optionSchema.safeParse(data);
-  if (!result.success) return { error: result.error.errors[0].message };
+  if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID tuỳ chọn." };
 
   const existing = await prisma.attributeOption.findFirst({
@@ -75,7 +75,7 @@ export async function deleteOption(id: number, attributeId: number) {
     });
     revalidatePath(`/admin/thuoc-tinh/${attributeId}`);
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return { error: "Có lỗi xảy ra khi xóa tuỳ chọn." };
   }

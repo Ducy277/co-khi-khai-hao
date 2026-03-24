@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Category } from "@prisma/client";
 import {
   Dialog,
   DialogContent,
@@ -39,14 +38,23 @@ const formSchema = z.object({
   slug: z.string().min(1, "Slug không được để trống").regex(/^[a-z0-9-]+$/, "Slug hợp lệ (chữ thường, số, gạch ngang)"),
   description: z.string().optional(),
   parentId: z.string().optional(), // Lấy dạng string từ select, sẽ convert sang number khi submit
-  sortOrder: z.coerce.number().min(0).default(0),
+  sortOrder: z.number().min(0),
 });
+
+type CategoryFormItem = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  parentId: number | null;
+  sortOrder: number;
+};
 
 interface CategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: any | null; // Có thể chứa quan hệ nên để là any thay vì thuần Category model
-  allCategories: any[];
+  category: CategoryFormItem | null;
+  allCategories: CategoryFormItem[];
 }
 
 function generateSlug(str: string) {
@@ -227,7 +235,14 @@ export default function CategoryDialog({ open, onOpenChange, category, allCatego
                 <FormItem>
                   <FormLabel>Thứ tự hiển thị</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value || 0))}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

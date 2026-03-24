@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, CheckCircle2, Factory, Wrench, ShieldCheck, Truck, Settings } from "lucide-react";
+import { ArrowRight, Factory, Wrench, ShieldCheck, Truck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [featuredProducts, categories] = await Promise.all([
+  const [featuredProducts, categories, heroBanner] = await Promise.all([
     prisma.product.findMany({
       where: { 
         isActive: true,
@@ -30,8 +30,21 @@ export default async function HomePage() {
       where: { parentId: null }, // Lấy danh mục gốc làm nổi bật
       take: 6,
       orderBy: { sortOrder: "asc" }
-    })
+    }),
+    prisma.banner.findFirst({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+    }),
   ]);
+
+  const bannerTitle = heroBanner?.title || "Vật Tư Cơ Khí Chính Hãng & Gia Công Chuyên Nghiệp";
+  const bannerSubtitle =
+    heroBanner?.subtitle ||
+    "Cơ Khí Khải Hào cung cấp giải pháp phụ tùng công nghiệp toàn diện: Ổ bi, bánh răng, xích tải chất lượng cao. Nhận gia công chi tiết máy theo bản vẽ với độ chính xác tuyệt đối.";
+  const bannerImage =
+    heroBanner?.image ||
+    "https://images.unsplash.com/photo-1565514020179-026b92b84bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80";
+  const bannerLink = heroBanner?.link || "/san-pham";
 
   const formatPrice = (price: unknown) => {
     if (!price) return "—";
@@ -43,26 +56,26 @@ export default async function HomePage() {
     <div className="bg-slate-50 min-h-screen">
       {/* 1. Hero Banner Section */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-40">
-          <Image 
-            src="https://images.unsplash.com/photo-1565514020179-026b92b84bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
-            alt="Xưởng cơ khí"
-            fill
-            className="object-cover"
-            priority
-          />
+          <div className="absolute inset-0 opacity-40">
+            <Image 
+              src={bannerImage}
+              alt="Xưởng cơ khí"
+              fill
+              className="object-cover"
+              priority
+            />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
         <div className="container mx-auto px-4 py-20 lg:py-32 relative z-10">
           <div className="max-w-2xl">
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight mb-6">
-              Vật Tư Cơ Khí <span className="text-blue-500">Chính Hãng</span> & Gia Công Chuyên Nghiệp
+              {bannerTitle}
             </h1>
             <p className="text-lg lg:text-xl text-slate-300 mb-8 leading-relaxed max-w-xl">
-              Cơ Khí Khải Hào cung cấp giải pháp phụ tùng công nghiệp toàn diện: Ổ bi, bánh răng, xích tải chất lượng cao. Nhận gia công chi tiết máy theo bản vẽ với độ chính xác tuyệt đối.
+              {bannerSubtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-               <Link href="/san-pham">
+               <Link href={bannerLink}>
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-base h-12 px-8 w-full sm:w-auto">
                   Khám phá sản phẩm <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
