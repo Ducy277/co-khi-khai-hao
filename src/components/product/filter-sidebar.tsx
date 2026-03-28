@@ -58,6 +58,10 @@ export default function ProductFilterSidebar({
   currentParentCategoryId,
 }: ProductFilterSidebarProps) {
   const router = useRouter();
+  const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set([
+    ...(currentParentCategoryId ? [currentParentCategoryId] : []),
+    ...(currentCategoryId ? [currentCategoryId] : [])
+  ]));
   const formRef = useRef<HTMLFormElement>(null);
   const debounceRef = useRef<number | null>(null);
   const [optionSearch, setOptionSearch] = useState<Record<string, string>>({});
@@ -166,28 +170,45 @@ export default function ProductFilterSidebar({
             {topCategories.map((category) => {
               const children = childMap.get(category.id) || [];
               const hasChildren = children.length > 0;
-              const shouldExpand =
-                category.id === currentCategoryId ||
-                category.id === currentParentCategoryId;
+              const isExpanded = expandedCats.has(category.id);
 
               return (
                 <li key={category.id}>
-                  <Link
-                    href={`/san-pham/${category.slug}`}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
-                      category.id === currentCategoryId
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                    }`}
-                  >
-                    <span>{category.name}</span>
-                    {hasChildren ? (
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
-                    ) : null}
-                  </Link>
+                  {hasChildren ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExpandedCats(prev => {
+                          const next = new Set(prev);
+                          if (next.has(category.id)) next.delete(category.id);
+                          else next.add(category.id);
+                          return next;
+                        });
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                        category.id === currentCategoryId || isExpanded
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                      }`}
+                    >
+                      <span>{category.name}</span>
+                      <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                    </button>
+                  ) : (
+                    <Link
+                      href={`/san-pham/${category.slug}`}
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                        category.id === currentCategoryId
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                      }`}
+                    >
+                      <span>{category.name}</span>
+                    </Link>
+                  )}
 
-                  {shouldExpand && hasChildren ? (
-                    <ul className="pl-4 mt-1 space-y-1 border-l-2 border-slate-100 ml-4">
+                  {isExpanded && hasChildren ? (
+                    <ul className="pl-4 mt-1 space-y-1 border-l-2 border-slate-100 ml-4 animate-in slide-in-from-top-2 fade-in duration-200">
                       {children.map((child) => (
                         <li key={child.id}>
                           <Link

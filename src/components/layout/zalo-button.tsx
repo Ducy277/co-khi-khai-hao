@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function ZaloButton() {
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-2">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2">
       <a 
         href="https://zalo.me/0901234567" 
         target="_blank" 
@@ -18,8 +18,8 @@ export default function ZaloButton() {
         </div>
 
         {/* Tooltip */}
-        <span className="absolute left-16 bg-white text-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-slate-100 pointer-events-none">
-          <span className="absolute left-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-white border-l border-b border-slate-100 rotate-45"></span>
+        <span className="absolute right-16 bg-white text-slate-800 px-3 py-1.5 rounded-lg shadow-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-slate-100 pointer-events-none">
+          <span className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-white border-r border-t border-slate-100 rotate-45"></span>
           Chat với chúng tôi
         </span>
       </a>

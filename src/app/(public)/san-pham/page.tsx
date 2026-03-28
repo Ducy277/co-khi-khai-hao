@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductFilterSidebar from "@/components/product/filter-sidebar";
+import { buildSearchFilter } from "@/lib/search";
 
 export const metadata = {
   title: "Tất cả sản phẩm | Cơ Khí Khải Hào",
@@ -88,13 +89,9 @@ export default async function ProductsPage({
 
   const andClauses: Prisma.ProductWhereInput[] = [];
 
-  if (q) {
-    andClauses.push({
-      OR: [
-        { name: { contains: q, mode: "insensitive" } },
-        { sku: { contains: q, mode: "insensitive" } },
-      ],
-    });
+  const searchFilter = buildSearchFilter(q);
+  if (searchFilter) {
+    andClauses.push(searchFilter);
   }
 
   for (const attribute of filterAttributes) {

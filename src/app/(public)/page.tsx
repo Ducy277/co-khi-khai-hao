@@ -52,8 +52,46 @@ export default async function HomePage() {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
   };
 
+  const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://cokhikhaihao.vn";
+
+  const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["LocalBusiness", "Organization", "AutoPartsStore"],
+        "@id": `${BASE_URL}/#organization`,
+        name: "Cơ Khí Khải Hào",
+        url: BASE_URL,
+        description: "Chuyên cung cấp vật tư phụ tùng cơ khí công nghiệp uy tín. Ổ bi, bánh răng, dây đai chính hãng. Dịch vụ gia công chi tiết máy theo bản vẽ.",
+        telephone: "+84901234567",
+        email: "admin@ckkh.vn",
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "VN",
+          addressLocality: "TP. Hồ Chí Minh",
+        },
+        openingHoursSpecification: [
+          {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            opens: "08:00",
+            closes: "17:30",
+          },
+        ],
+        priceRange: "₫₫",
+        currenciesAccepted: "VND",
+        paymentAccepted: "Cash, Bank Transfer",
+      },
+    ],
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
+      {/* JSON-LD LocalBusiness Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       {/* 1. Hero Banner Section */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
           <div className="absolute inset-0 opacity-40">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Trash2, ShoppingBag } from "lucide-react";
+import { Loader2, Trash2, ShoppingBag, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,6 +37,7 @@ export default function QuoteCartPage() {
   const [items, setItems] = useState<QuoteCartItem[]>([]);
   const [form, setForm] = useState<QuoteForm>(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const syncCart = () => {
@@ -44,6 +45,7 @@ export default function QuoteCartPage() {
       setItems(cart.items);
     };
 
+    setIsMounted(true);
     syncCart();
     window.addEventListener(QUOTE_CART_EVENT, syncCart);
     window.addEventListener("storage", syncCart);
@@ -123,12 +125,43 @@ export default function QuoteCartPage() {
     }
   };
 
+  if (!isMounted) return null; // Avoid hydration mismatch flash
+  
   return (
-    <div className="bg-slate-50 min-h-screen py-8">
+    <div className="bg-slate-50 min-h-screen py-8 print:bg-white print:py-4">
+      {/* Print CSS */}
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          body { font-size: 12px; }
+        }
+        .print-only { display: none; }
+      `}</style>
+
       <div className="container mx-auto px-4 max-w-6xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">Giỏ Yêu Cầu Báo Giá</h1>
-          <p className="text-slate-500 mt-1">Hiện có {totalQty} sản phẩm trong giỏ.</p>
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Giỏ Yêu Cầu Báo Giá</h1>
+            <p className="text-slate-500 mt-1">Hiện có {totalQty} sản phẩm trong giỏ.</p>
+          </div>
+          {items.length > 0 && (
+            <Button
+              variant="outline"
+              className="no-print border-slate-300 text-slate-600"
+              onClick={() => window.print()}
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              In / Xuất PDF
+            </Button>
+          )}
+        </div>
+
+        {/* Print header — chỉ hiện khi in */}
+        <div className="print-only mb-6 border-b pb-4">
+          <h2 className="text-xl font-bold">Cơ Khí Khải Hào</h2>
+          <p className="text-sm text-gray-500">Hotline: 090 123 4567 | Email: admin@ckkh.vn</p>
+          <p className="text-sm text-gray-500">Ngày: {new Date().toLocaleDateString("vi-VN")}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -180,15 +213,36 @@ export default function QuoteCartPage() {
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
-                      <Input
-                        type="number"
-                        min={1}
-                        value={item.quantity}
-                        onChange={(e) => handleQtyChange(item.productId, Number(e.target.value || 1))}
-                        className="w-20 text-right"
-                      />
-                      <Button type="button" variant="ghost" size="icon" onClick={() => handleRemove(item.productId)}>
-                        <Trash2 className="w-4 h-4 text-red-600" />
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9"
+                          onClick={() => handleQtyChange(item.productId, Math.max(1, item.quantity - 1))}
+                        >
+                          -
+                        </Button>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={item.quantity}
+                          onChange={(e) => handleQtyChange(item.productId, Number(e.target.value || 1))}
+                          className="w-16 h-9 text-center p-1"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9"
+                          onClick={() => handleQtyChange(item.productId, item.quantity + 1)}
+                        >
+                          +
+                        </Button>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleRemove(item.productId)} className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2 h-8">
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Xóa
                       </Button>
                     </div>
                   </div>

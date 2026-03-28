@@ -232,7 +232,14 @@ export default function ProductForm({ initialData, categories, brands, attribute
                   <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="-- Chọn danh mục --" />
+                        <SelectValue placeholder="-- Chọn danh mục --">
+                          {field.value && categories.find(c => c.id.toString() === field.value) ? 
+                            (() => {
+                              const c = categories.find(c => c.id.toString() === field.value)!;
+                              return c.parentId ? `└─ ${c.name}` : c.name;
+                            })() 
+                          : "-- Chọn danh mục --"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -257,7 +264,11 @@ export default function ProductForm({ initialData, categories, brands, attribute
                   <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="-- Chọn thương hiệu --" />
+                        <SelectValue placeholder="-- Chọn thương hiệu --">
+                          {field.value && field.value !== "none" && brands.find(b => b.id.toString() === field.value) ? 
+                            brands.find(b => b.id.toString() === field.value)?.name 
+                          : "-- Chọn thương hiệu --"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

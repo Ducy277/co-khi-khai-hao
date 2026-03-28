@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
+import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: "🏠" },
@@ -22,9 +24,32 @@ export default function AdminSidebar({
   user: Session["user"];
 }) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
-    <aside className="w-64 bg-blue-950 text-white flex flex-col min-h-screen sticky top-0">
+    <>
+      {/* Mobile Toggle Button */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="lg:hidden fixed bottom-6 right-6 z-60 p-3 bg-blue-600 text-white rounded-full shadow-xl hover:bg-blue-700 transition-colors"
+      >
+        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
+
+      {/* Overlay */}
+      {isOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-slate-900/50 z-40" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`w-64 bg-blue-950 text-white flex flex-col min-h-screen fixed lg:sticky top-0 z-50 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
       {/* Logo */}
       <div className="px-5 py-5 border-b border-blue-900">
         <Link href="/admin" className="flex items-center gap-3">
@@ -81,5 +106,6 @@ export default function AdminSidebar({
         </button>
       </div>
     </aside>
+    </>
   );
 }

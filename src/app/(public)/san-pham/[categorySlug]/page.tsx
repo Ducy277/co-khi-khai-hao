@@ -7,6 +7,7 @@ import { Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 import ProductFilterSidebar from "@/components/product/filter-sidebar";
+import { buildSearchFilter } from "@/lib/search";
 
 type Props = {
   params: Promise<{ categorySlug: string }>;
@@ -134,13 +135,9 @@ export default async function CategoryProductsPage({
     { categoryId: { in: categoryIdsToSearch } },
   ];
 
-  if (q) {
-    andClauses.push({
-      OR: [
-        { name: { contains: q, mode: "insensitive" } },
-        { sku: { contains: q, mode: "insensitive" } },
-      ],
-    });
+  const searchFilter = buildSearchFilter(q);
+  if (searchFilter) {
+    andClauses.push(searchFilter);
   }
 
   for (const attribute of attributes) {

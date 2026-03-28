@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,49 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
+  const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://cokhikhaihao.vn";
+
+  // JSON-LD Structured Data (Product + BreadcrumbList)
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        name: product.name,
+        sku: product.sku,
+        description: product.description || `${product.name} - Phụ tùng cơ khí chính hãng`,
+        image: product.images[0]?.url
+          ? `${BASE_URL}${product.images[0].url}`
+          : undefined,
+        brand: product.brand
+          ? { "@type": "Brand", name: product.brand.name }
+          : undefined,
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "VND",
+          ...(product.priceOnRequest
+            ? { availability: "https://schema.org/InStock", priceSpecification: { "@type": "PriceSpecification", priceCurrency: "VND" } }
+            : {
+                price: product.price ? Number(product.price) : 0,
+                availability: "https://schema.org/InStock",
+              }),
+          seller: { "@type": "Organization", name: "Cơ Khí Khải Hào" },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Trang chủ", item: BASE_URL },
+          { "@type": "ListItem", position: 2, name: "Sản phẩm", item: `${BASE_URL}/san-pham` },
+          ...(product.category.parent
+            ? [{ "@type": "ListItem", position: 3, name: product.category.parent.name, item: `${BASE_URL}/san-pham/${product.category.parent.slug}` },
+               { "@type": "ListItem", position: 4, name: product.category.name, item: `${BASE_URL}/san-pham/${product.category.slug}` }]
+            : [{ "@type": "ListItem", position: 3, name: product.category.name, item: `${BASE_URL}/san-pham/${product.category.slug}` }]),
+        ],
+      },
+    ],
+  };
+
   const formatPrice = (price: unknown) => {
     if (!price) return "—";
     const num = Number(price);
@@ -89,6 +133,11 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-slate-200 py-4">
         <div className="container mx-auto px-4">
@@ -287,6 +336,43 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Sản phẩm liên quan */}
+        {relatedProducts.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Sản Phẩm Liên Quan</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {relatedProducts.map((related) => (
+                <Link
+                  key={related.id}
+                  href={`/san-pham/chi-tiet/${related.slug}`}
+                  className="group bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all overflow-hidden"
+                >
+                  <div className="aspect-square bg-slate-50 relative">
+                    {related.images[0] ? (
+                      <Image
+                        src={related.images[0].url}
+                        alt={related.images[0].alt || related.name}
+                        fill
+                        className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-slate-200">
+                        <span className="text-4xl">⚙</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-slate-400 font-mono mb-1">{related.sku}</p>
+                    <h3 className="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2">
+                      {related.name}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
