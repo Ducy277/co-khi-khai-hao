@@ -5,11 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* ── Color tokens (Clean Boxy Professional) ── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -18,11 +16,7 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,92 +33,119 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  
+  /* CỨNG & VUÔNG VỨC: OVERRIDE RADIUS TO ZERO FOR BOXY LOOK */
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
+  --radius-2xl: 0rem;
+  --radius-3xl: 0rem;
+  --radius: 0rem;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Nền tảng: Trắng tinh, font chữ màu xám đen chuyên nghiệp (slate-800) */
+  --background: oklch(0.985 0 0); /* White */
+  --foreground: oklch(0.25 0.02 260); /* Slate 800 */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.25 0.02 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.25 0.02 260);
+  
+  /* MÀU NHẤN CHÍNH: Xanh Dương Tươi (Blue 600) thay vì Blue 700 tối */
+  --primary: oklch(0.55 0.16 260); /* Blue 600 */
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  
+  /* Màu phụ: Xanh nhạt (Blue 50) */
+  --secondary: oklch(0.95 0.05 260); /* Blue 50 */
+  --secondary-foreground: oklch(0.55 0.16 260); /* Blue 600 */
+  
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.55 0.02 260); /* Slate 500 */
+  --accent: oklch(0.95 0.02 260); /* Slate 100 */
+  --accent-foreground: oklch(0.25 0.02 260);
+  --destructive: oklch(0.58 0.24 27); /* Đỏ để báo động */
+  
+  /* Border: Viền cứng cáp nhưng nhẹ nhàng hơn (Slate 300) */
+  --border: oklch(0.85 0.02 260); /* Slate 300 */
+  --input: oklch(0.85 0.02 260);
+  --ring: oklch(0.55 0.16 260); /* Focus ring Blue */
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --radius: 0rem; /* TUYỆT ĐỐI KHÔNG BO GÓC */
+
+  --sidebar: oklch(0.985 0 0); /* Trắng */
+  --sidebar-foreground: oklch(0.25 0.02 260); /* Slate 800 */
+  --sidebar-primary: oklch(0.55 0.16 260);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.95 0.02 260); /* Slate 100 */
+  --sidebar-accent-foreground: oklch(0.55 0.16 260);
+  --sidebar-border: oklch(0.85 0.02 260); /* Slate 300 */
+  --sidebar-ring: oklch(0.55 0.16 260);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border font-sans;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    /* XÓA LƯỚI GRID BLUEPRINT GÂY RỐI MẮT, HOÀN KIẾM NỀN TRẮNG SẠCH SẼ */
+    background-image: none;
   }
   html {
-    @apply font-sans;
+    scroll-behavior: smooth;
   }
+  ::selection {
+    background-color: var(--primary);
+    color: white;
+  }
+}
+
+/* ── Custom scrollbar khối vuông vức nhưng thanh mảnh hơn ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(0.96 0.02 260); /* Slate 100 */
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.65 0.02 260); /* Slate 400 */
+  border-radius: 0px; /* Không bo góc */
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary); /* Blue khi cuộn */
+}
+
+/* Print styles */
+@media print {
+  body { background-image: none !important; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+}
+.print-only {
+  display: none;
+}
+
+/* Tiện ích Boxy Clean (Thay thế Brutalism hầm hố) */
+.brutal-border {
+  border: 1px solid var(--border);
+}
+.brutal-shadow {
+  /* Bóng mờ thay vì bóng đen đặc */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+}
+.brutal-shadow:hover {
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.brutal-shadow-primary {
+  box-shadow: 0px 4px 12px rgba(37, 99, 235, 0.15); /* Blue shadow */
+}
+.brutal-shadow-primary:hover {
+  box-shadow: 0px 8px 16px rgba(37, 99, 235, 0.25);
+  transform: translateY(-2px);
 }

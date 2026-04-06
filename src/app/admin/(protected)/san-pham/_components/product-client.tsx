@@ -77,7 +77,7 @@ export default function ProductClientRenderer({ initialProducts }: ProductClient
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden border-t-4 border-t-primary">
       <div className="p-4 border-b border-slate-100 flex justify-between items-center">
         <h2 className="font-semibold text-slate-800">Tất cả sản phẩm ({products.length})</h2>
         <Link href="/admin/san-pham/create">

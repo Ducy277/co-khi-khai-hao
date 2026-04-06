@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, Award } from "lucide-react";
+import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, Award, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 import ProductGallery from "@/components/product/product-gallery";
@@ -132,109 +132,108 @@ export default async function ProductDetailPage({ params }: Props) {
   });
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
-      {/* JSON-LD Structured Data */}
+    <div className="bg-slate-50 min-h-screen pb-20 pt-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-slate-200 py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center text-sm text-slate-500 flex-wrap">
-            <Link href="/" className="hover:text-blue-600 transition-colors whitespace-nowrap">Trang chủ</Link>
-            <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 flex-shrink-0" />
-            <Link href="/san-pham" className="hover:text-blue-600 transition-colors whitespace-nowrap">Sản phẩm</Link>
-            
+      <div className="container mx-auto px-4 sm:px-6 mb-6">
+        <div className="bg-white border border-slate-200 p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-slate-500 flex-wrap">
+            <Link href="/" className="hover:text-primary transition-colors">TRANG CHỦ</Link>
+            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+            <Link href="/san-pham" className="hover:text-primary transition-colors">SẢN PHẨM</Link>
             {product.category.parent && (
               <>
-                 <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 flex-shrink-0" />
-                 <Link href={`/san-pham/${product.category.parent.slug}`} className="hover:text-blue-600 transition-colors whitespace-nowrap">
-                   {product.category.parent.name}
-                 </Link>
+                <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                <Link href={`/san-pham/${product.category.parent.slug}`} className="hover:text-primary transition-colors">
+                  {product.category.parent.name}
+                </Link>
               </>
             )}
-
-            <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 flex-shrink-0" />
-            <Link href={`/san-pham/${product.category.slug}`} className="hover:text-blue-600 transition-colors whitespace-nowrap hidden sm:inline-block">
+            <ChevronRight className="w-3.5 h-3.5 shrink-0 hidden sm:inline" />
+            <Link href={`/san-pham/${product.category.slug}`} className="hover:text-primary transition-colors hidden sm:inline text-slate-800">
               {product.category.name}
             </Link>
-
-            <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 flex-shrink-0 hidden sm:inline-block" />
-            <span className="text-slate-800 font-medium whitespace-nowrap hidden sm:inline-block w-48 truncate" title={product.name}>{product.name}</span>
+            <ChevronRight className="w-3.5 h-3.5 shrink-0 hidden sm:inline" />
+            <span className="text-primary font-bold hidden sm:inline truncate max-w-[200px]">{product.name}</span>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-12 flex flex-col lg:flex-row">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="bg-white border border-slate-200 shadow-sm mb-12 flex flex-col lg:flex-row">
           {/* Cột trái: Gallery Dạng Client Slide */}
-          <div className="w-full lg:w-1/2 p-6 lg:border-r border-slate-200 bg-slate-50/50">
+          <div className="w-full lg:w-1/2 p-6 lg:border-r border-slate-200 bg-white relative">
              <ProductGallery images={product.images} productName={product.name} />
           </div>
 
           {/* Cột phải: Thông tin SP (Header, Giá, Specs table, Action) */}
-          <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-blue-600 font-medium text-sm px-3 py-1 bg-blue-50 rounded-full border border-blue-100">
+          <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col bg-white">
+            <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+              <span className="text-white font-bold text-[11px] px-3 py-1 bg-slate-800 tracking-wider">
                 {product.category.name}
               </span>
-              <span className="text-slate-500 font-mono text-sm bg-slate-100 px-2 py-1 rounded">SKU: {product.sku}</span>
+              <span className="text-primary font-mono font-medium text-xs border border-primary px-2 py-1 bg-blue-50">SKU: {product.sku}</span>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight leading-[1.2] mb-6">
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-6 mb-8 text-sm text-slate-600">
+            <div className="flex items-center gap-6 mb-8 text-xs font-semibold tracking-wide text-slate-600 border-l-4 border-primary pl-4">
               <div className="flex items-center">
-                <span className="mr-2">Thương hiệu:</span>
-                <span className="font-bold text-slate-800">{product.brand?.name || "Đang cập nhật"}</span>
+                <span className="mr-2">THƯƠNG HIỆU:</span>
+                <span className="text-primary">{product.brand?.name || "ĐANG CẬP NHẬT"}</span>
               </div>
-              <div className="flex items-center">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-1.5" />
-                <span className="text-emerald-700 font-medium">Hàng chính hãng</span>
+              <div className="flex items-center text-green-700">
+                <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                <span>CHÍNH HÃNG</span>
               </div>
             </div>
 
             {/* Bảng Giá */}
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
+            <div className="bg-slate-50 p-6 border border-slate-200 mb-8 relative">
+              <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 tracking-wider border-b border-l border-primary">
+                {product.priceOnRequest ? "BÁO GIÁ" : "GIÁ BÁN"}
+              </div>
               {product.priceOnRequest ? (
                 <div className="flex flex-col">
-                  <span className="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Tình trạng Giá</span>
-                  <div className="text-3xl font-extrabold text-red-600">Liên hệ báo giá</div>
-                  <p className="text-slate-500 text-sm mt-2">Vui lòng liên hệ trực tiếp cho tư vấn viên để lấy giá chiết khấu ưu đãi nhất.</p>
+                  <span className="text-slate-500 text-[11px] mb-1 font-semibold tracking-wider uppercase">Tình trạng Giá</span>
+                  <div className="text-3xl font-bold text-red-600 tracking-tight">LIÊN HỆ BÁO GIÁ</div>
+                  <p className="text-slate-500 text-xs mt-2 font-medium">Vui lòng liên hệ trực tiếp cho tư vấn viên để lấy giá chiết khấu ưu đãi nhất.</p>
                 </div>
               ) : (
                 <div className="flex flex-col">
-                  <span className="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Giá bán lẻ (Cơ bản)</span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-blue-700">{formatPrice(product.price)}</div>
+                  <span className="text-slate-500 text-[11px] mb-1 font-semibold tracking-wider uppercase">Giá bán lẻ (Cơ bản)</span>
+                  <div className="text-4xl font-bold text-primary tracking-tight">{formatPrice(product.price)}</div>
                 </div>
               )}
             </div>
 
-            {/* Bảng thông số kỹ thuật EAV Loop rút gọn (Chỉ top 5 specs, còn lại gộp vào Chi tiết Data Sheet) */}
+            {/* Bảng thông số kỹ thuật EAV Loop rút gọn */}
             {specifications.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-lg font-bold text-slate-800 mb-3 flex items-center">
-                  <FileText className="w-5 h-5 text-blue-600 mr-2" />
-                  Thông số Kỹ Thuật Chính
+                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center uppercase tracking-wide pb-2 border-b border-slate-200">
+                  <FileText className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
+                  THÔNG SỐ KỸ THUẬT CHÍNH
                 </h3>
-                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <div className="border border-slate-200 bg-white">
                   <table className="w-full text-sm text-left">
                     <tbody>
                       {specifications.slice(0, 5).map((spec, idx) => (
                         <tr key={idx} className="border-b border-slate-100 last:border-b-0">
-                          <th className="py-2.5 px-4 bg-slate-50 text-slate-600 font-medium w-48">{spec.name}</th>
-                          <td className="py-2.5 px-4 text-slate-800 font-semibold">{spec.value || "—"}</td>
+                          <th className="py-2.5 px-4 bg-slate-50 text-slate-600 font-medium w-1/3 border-r border-slate-100 capitalize">{spec.name}</th>
+                          <td className="py-2.5 px-4 text-slate-900 font-medium">{spec.value || "—"}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
                 {specifications.length > 5 && (
-                  <p className="text-blue-600 text-sm mt-2 cursor-pointer hover:underline">
-                    Xem toàn bộ thông số kỹ thuật ở bên dưới ↓
+                  <p className="text-primary text-[11px] font-bold mt-3 cursor-pointer hover:underline text-right">
+                    Xem toàn bộ Data Sheet ↓
                   </p>
                 )}
               </div>
@@ -254,119 +253,124 @@ export default async function ProductDetailPage({ params }: Props) {
                 }}
               />
               <a href="https://zalo.me/0901234567" target="_blank" rel="noopener noreferrer" className="col-span-1 sm:col-span-1 lg:col-span-1 block w-full">
-                <Button size="lg" className="bg-[#0068FF] hover:bg-blue-600 text-white w-full h-14 font-bold border border-[#0068FF] shadow-lg">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Chat Zalo
+                <Button size="lg" className="bg-[#0068FF] hover:bg-blue-600 text-white w-full h-12 font-semibold border border-[#0068FF] shadow-sm text-xs rounded-none transition-all">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Zalo
                 </Button>
               </a>
               <a href="tel:0901234567" className="col-span-1 sm:col-span-2 lg:col-span-1 block w-full">
-                <Button size="lg" variant="outline" className="border-green-600 text-green-700 hover:bg-green-50 w-full h-14 font-bold border-2">
-                  <Phone className="w-5 h-5 mr-2" />
-                  Gọi 090...
+                <Button size="lg" variant="outline" className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full h-12 font-semibold border-2 shadow-sm rounded-none text-xs transition-all">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Hotline
                 </Button>
               </a>
             </div>
-            <div className="mt-4 flex flex-col gap-2">
-              <p className="text-xs text-slate-500 flex items-center justify-center">
-                <Award className="w-4 h-4 mr-1 text-slate-400" /> Cam kết bảo hành 12 tháng. Miễn phí vận chuyển nội thành.
+            <div className="mt-6 flex flex-col gap-2 border-t border-slate-200 pt-4">
+              <p className="text-xs text-slate-500 font-medium flex items-center justify-center">
+                <Award className="w-4 h-4 mr-1 text-primary" /> Bảo hành chính hãng 12 tháng.
               </p>
             </div>
           </div>
         </div>
 
         {/* Section Bảng Spec Đầy đủ vs Mô Tả dài */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
-               <h2 className="text-2xl font-bold text-slate-900 mb-6 pb-4 border-b border-slate-100">Đặc Điểm & Mô Tả Dữ Liệu</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16 items-start">
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            <div className="bg-white shadow-sm border border-slate-200 p-6 md:p-8">
+               <h2 className="text-xl font-bold text-slate-900 mb-6 pb-2 border-b-2 border-primary uppercase tracking-wide inline-block">Đặc điểm kỹ thuật</h2>
                
                {product.description ? (
-                 <div className="prose prose-slate max-w-none text-slate-600 whitespace-pre-line mb-10">
+                 <div className="prose prose-sm md:prose-base max-w-none text-slate-600 whitespace-pre-line leading-relaxed">
                    {product.description}
                  </div>
                ) : (
-                 <p className="text-slate-500 italic mb-10">Nội dung mô tả cho sản phẩm {product.name} đang được chúng tôi cập nhật...</p>
-               )}
-
-               {/* Bảng Dữ Liệu Full EAV */}
-               {specifications.length > 0 && (
-                 <>
-                   <h3 className="text-xl font-bold text-slate-900 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100 uppercase tracking-widest text-sm text-center">Bảng Thông Số Điện Kỹ Thuật (Data Sheet)</h3>
-                   <div className="border border-slate-200 rounded-lg overflow-hidden">
-                     <table className="w-full text-left">
-                       <tbody>
-                         {specifications.map((spec, idx) => (
-                           <tr key={idx} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors">
-                             <th className="py-3 px-6 bg-slate-50/50 text-slate-600 font-medium w-1/3 border-r border-slate-100">{spec.name}</th>
-                             <td className="py-3 px-6 text-slate-800">{spec.value || "—"}</td>
-                           </tr>
-                         ))}
-                       </tbody>
-                     </table>
-                   </div>
-                 </>
+                 <p className="text-slate-500 text-sm">Nội dung mô tả cho sản phẩm này đang được cập nhật thêm.</p>
                )}
             </div>
+
+            {/* Bảng Dữ Liệu Full EAV */}
+            {specifications.length > 0 && (
+              <div className="bg-white shadow-sm border border-slate-200 p-6 md:p-8">
+                <h3 className="text-sm font-bold text-slate-800 mb-6 bg-slate-100 p-3 border border-slate-200 flex justify-between items-center w-full uppercase">
+                  <span>Bảng dữ liệu kỹ thuật (Data Sheet)</span>
+                </h3>
+                <div className="border border-slate-200 bg-white">
+                  <table className="w-full text-left text-sm">
+                    <tbody>
+                      {specifications.map((spec, idx) => (
+                        <tr key={idx} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors">
+                          <th className="py-3 px-4 md:px-6 bg-slate-50 text-slate-600 font-semibold w-1/3 border-r border-slate-100">{spec.name}</th>
+                          <td className="py-3 px-4 md:px-6 text-slate-900">{spec.value || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-slate-900 rounded-xl text-white p-6 sticky top-24">
-              <h3 className="text-lg font-bold mb-4">Bạn Cần Trợ Giúp?</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                Chuyên viên của Cơ Khí Khải Hào luôn sẵn sàng hỗ trợ bạn chọn đúng mã sản phẩm và đo lường kỹ thuật trước khi đặt mua.
+            <div className="bg-slate-800 border border-slate-700 shadow-md text-white p-6 sticky top-32">
+              <h3 className="text-lg font-bold mb-4 text-white">Trung râm hỗ trợ</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-6 border-l-2 border-primary pl-3">
+                Chuyên viên của Cơ Khí Khải Hào sẵn sàng hỗ trợ đo lường, lựa chọn đúng mã sản phẩm và tư vấn kỹ thuật chuyên sâu.
               </p>
-              <a href="tel:0901234567" className="flex items-center gap-3 bg-white/10 p-4 rounded-lg hover:bg-white/20 transition-colors mb-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-white" />
+              <a href="tel:0901234567" className="flex items-center gap-3 bg-slate-900 border border-slate-700 p-4 hover:border-primary transition-all mb-4 group">
+                <div className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 text-white">
+                  <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs text-blue-200">Hotline 24/7</div>
-                  <div className="font-bold text-lg">090 123 4567</div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Hotline 24/7</div>
+                  <div className="font-bold text-lg group-hover:text-primary transition-colors">090 123 4567</div>
                 </div>
               </a>
-               <a href="mailto:admin@ckkh.vn" className="flex items-center gap-3 bg-white/10 p-4 rounded-lg hover:bg-white/20 transition-colors">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-white" />
+               <a href="mailto:admin@ckkh.vn" className="flex items-center gap-3 bg-slate-900 border border-slate-700 p-4 hover:border-primary transition-all group">
+                <div className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 text-white">
+                  <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs text-blue-200">Gửi Mail báo giá bản vẽ</div>
-                  <div className="font-bold">admin@ckkh.vn</div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Email Gửi Bản Vẽ</div>
+                  <div className="font-bold text-sm group-hover:text-primary transition-colors">admin@ckkh.vn</div>
                 </div>
               </a>
             </div>
           </div>
         </div>
 
-        {/* Sản phẩm liên quan */}
+        {/* Sản phẩm liên quan (Smaller Grid) */}
         {relatedProducts.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Sản Phẩm Liên Quan</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <h2 className="text-xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-2 flex items-center gap-2">
+              <span className="w-2 h-6 bg-primary inline-block"></span>
+              Sản phẩm cùng loại
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {relatedProducts.map((related) => (
                 <Link
                   key={related.id}
                   href={`/san-pham/chi-tiet/${related.slug}`}
-                  className="group bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all overflow-hidden"
+                  className="group bg-white border border-slate-200 hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
                 >
-                  <div className="aspect-square bg-slate-50 relative">
+                  <div className="aspect-square bg-slate-50 relative flex justify-center items-center border-b border-slate-100">
                     {related.images[0] ? (
                       <Image
                         src={related.images[0].url}
                         alt={related.images[0].alt || related.name}
                         fill
-                        className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                        className="object-contain p-4 group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
                       />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-slate-200">
-                        <span className="text-4xl">⚙</span>
-                      </div>
+                      <Settings className="w-8 h-8 text-slate-300" />
                     )}
                   </div>
-                  <div className="p-3">
-                    <p className="text-xs text-slate-400 font-mono mb-1">{related.sku}</p>
-                    <h3 className="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2">
-                      {related.name}
-                    </h3>
+                  <div className="p-3 bg-white flex flex-col flex-1 justify-between">
+                    <div>
+                      <p className="text-[10px] text-slate-500 tracking-wide mb-1 uppercase line-clamp-1">{related.sku}</p>
+                      <h3 className="text-xs font-semibold text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                        {related.name}
+                      </h3>
+                    </div>
                   </div>
                 </Link>
               ))}

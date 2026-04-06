@@ -100,7 +100,7 @@ export default function CategoryClientRenderer({ initialCategories }: CategoryCl
   });
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden border-t-4 border-t-primary">
       <div className="p-4 border-b border-slate-100 flex justify-between items-center">
         <h2 className="font-semibold text-slate-800">Tất cả danh mục ({categories.length})</h2>
         <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">

@@ -65,7 +65,7 @@ export default function QuoteClientRenderer({ initialQuotes }: QuoteClientProps)
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden border-t-4 border-t-primary">
       <div className="p-4 border-b border-slate-100">
         <h2 className="font-semibold text-slate-800">Danh sách yêu cầu báo giá ({quotes.length})</h2>
       </div>

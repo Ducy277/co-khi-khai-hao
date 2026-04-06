@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const beVietnamPro = Be_Vietnam_Pro({
-  variable: "--font-be-vietnam",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin", "vietnamese"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const robotoMono = Roboto_Mono({
+  variable: "--font-mono",
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -29,8 +35,8 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="vi" className={`${beVietnamPro.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-[var(--font-be-vietnam)]">
+    <html lang="vi" className={`${inter.variable} ${robotoMono.variable} h-full`}>
+      <body className="min-h-full flex flex-col font-sans antialiased text-slate-800 bg-slate-50">
         <Providers session={session}>{children}</Providers>
       </body>
     </html>
