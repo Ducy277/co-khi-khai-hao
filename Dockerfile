@@ -25,8 +25,20 @@ RUN npx prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
-
-# ─── Stage 3: Production runner (minimal image) ───────────────────────────────
+ 
+# ─── Stage 3: Migration runner ────────────────────────────────────────────────
+FROM node:20-alpine AS migration-runner
+ 
+RUN apk add --no-cache openssl
+ 
+WORKDIR /app
+ 
+COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+COPY package.json ./
+ 
+# ─── Stage 4: Production runner (minimal image) ───────────────────────────────
 FROM node:20-alpine AS runner
 
 RUN apk add --no-cache openssl

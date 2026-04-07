@@ -22,12 +22,12 @@ services:
       timeout: 5s
       retries: 10
 
-  # ── Prisma Migrations (chạy 1 lần rồi thoát) ─────────────────────────────
   migrate:
     build:
       context: ..
       dockerfile: Dockerfile
-    command: npx prisma migrate deploy
+      target: migration-runner
+    command: ./node_modules/.bin/prisma migrate deploy
     environment:
       DATABASE_URL: ${DATABASE_URL}
     depends_on:
