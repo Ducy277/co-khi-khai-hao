@@ -7,6 +7,7 @@ import { Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 import ProductFilterSidebar from "@/components/product/filter-sidebar";
+import MobileFilterWrapper from "@/components/product/mobile-filter-wrapper";
 import { buildSearchFilter } from "@/lib/search";
 
 type Props = {
@@ -245,8 +246,8 @@ export default async function CategoryProductsPage({
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="w-full lg:w-72 flex-shrink-0">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+          <MobileFilterWrapper>
             <ProductFilterSidebar
               basePath={`/san-pham/${currentCategory.slug}`}
               searchParams={s}
@@ -254,8 +255,9 @@ export default async function CategoryProductsPage({
               categories={allCategories}
               currentCategoryId={currentCategory.id}
               currentParentCategoryId={currentCategory.parentId}
+              totalProducts={totalCount}
             />
-          </div>
+          </MobileFilterWrapper>
 
           <div className="flex-1">
             {products.length === 0 ? (
@@ -268,43 +270,48 @@ export default async function CategoryProductsPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 lg:gap-5">
                 {products.map((product) => (
-                  <Link key={product.id} href={`/san-pham/chi-tiet/${product.slug}`} className="group flex flex-col bg-white rounded-xl overflow-hidden border border-slate-200 hover:shadow-lg transition-all hover:border-blue-300">
-                    <div className="aspect-square bg-slate-100 relative overflow-hidden p-2">
-                      <div className="w-full h-full relative rounded-lg overflow-hidden bg-white">
-                        {product.images[0] ? (
+                  <Link
+                    key={product.id}
+                    href={`/san-pham/chi-tiet/${product.slug}`}
+                    className="group flex flex-row md:flex-col bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-primary transition-all"
+                  >
+                    {/* Image */}
+                    <div className="shrink-0 w-[120px] h-auto min-h-[120px] md:h-[150px] md:min-h-0 md:w-full relative flex items-center justify-center p-3 border-r md:border-r-0 md:border-b border-slate-100 bg-white">
+                      {product.images[0] ? (
+                        <div className="relative w-[90px] h-[90px] md:w-[100px] md:h-[100px]">
                           <Image
                             src={product.images[0].url}
                             alt={product.images[0].alt || product.name}
                             fill
-                            className="object-contain group-hover:scale-105 transition-transform duration-500 p-2"
+                            className="object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
                           />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-slate-200 bg-slate-50">
-                            <Settings className="w-10 h-10" />
-                          </div>
-                        )}
-                      </div>
-                      {product.priceOnRequest && (
-                        <div className="absolute top-2 right-2 bg-slate-800 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded shadow-sm">
-                          BÁO GIÁ
                         </div>
+                      ) : (
+                        <Settings className="w-6 h-6 text-slate-300" />
+                      )}
+                      {product.priceOnRequest && (
+                        <span className="absolute top-2 left-2 bg-red-50 text-red-600 border border-red-100 text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 uppercase tracking-wide">
+                          BÁO GIÁ
+                        </span>
                       )}
                     </div>
-                    <div className="p-3 sm:p-4 flex flex-col flex-grow border-t border-slate-100">
-                      <div className="text-[10px] sm:text-xs text-slate-500 mb-1.5 flex items-center justify-between">
-                        <span className="truncate pr-2">{product.category.name}</span>
-                        <span className="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-400">{product.sku}</span>
+
+                    {/* Info */}
+                    <div className="p-3 md:p-4 flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center justify-between text-[11px] tracking-wide text-slate-500 mb-1 md:mb-2 font-medium">
+                        <span className="truncate pr-1 uppercase text-[10px]">{product.category.name}</span>
+                        <span className="text-slate-400 font-normal hidden sm:inline">SKU: {product.sku}</span>
                       </div>
-                      <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-snug mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 flex-grow">
+                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-primary leading-snug line-clamp-2 md:mb-3">
                         {product.name}
                       </h3>
-                      <div className="mt-auto">
+                      <div className="mt-auto pt-2 md:pt-3 border-t border-slate-100 flex justify-between items-center text-right">
                         {product.priceOnRequest ? (
-                          <p className="text-red-600 font-bold text-sm sm:text-base">Liên hệ Zalo</p>
+                          <span className="text-xs font-semibold text-red-600 block mt-1 hover:underline">Liên hệ tư vấn →</span>
                         ) : (
-                          <p className="text-blue-700 font-bold text-sm sm:text-base">{formatPrice(product.price)}</p>
+                          <span className="text-[14px] md:text-[15px] font-bold text-primary">{formatPrice(product.price)}</span>
                         )}
                       </div>
                     </div>

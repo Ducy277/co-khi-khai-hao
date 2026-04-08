@@ -99,6 +99,7 @@ export default async function ProductsPage({
     const key = `attr_${attribute.slug}`;
     if (attribute.type === "select") {
       const selectedValues = toMany(p[key]);
+      console.log(`[DEBUG] Attribute ${key} selectedValues:`, selectedValues);
       if (selectedValues.length > 0) {
         andClauses.push({
           attributeValues: {
@@ -173,7 +174,7 @@ export default async function ProductsPage({
 
   return (
     <div className="bg-slate-50 min-h-screen pb-16 pt-6">
-      <div className="container mx-auto px-4 sm:px-6 mb-6">
+      <div className="container mx-auto sm:px-6 mb-6">
         {/* Breadcrumb & Title */}
         <div className="bg-white border border-slate-200 p-4 md:p-6 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-slate-500 mb-4 border-b border-slate-100 pb-2">
@@ -197,15 +198,12 @@ export default async function ProductsPage({
 
           {/* Sidebar */}
           <MobileFilterWrapper>
-            <div className="font-bold text-slate-800 tracking-wide mb-4 border-b border-slate-100 pb-2 flex items-center justify-between">
-              Bộ lọc nâng cao
-              <Settings className="w-4 h-4 text-slate-400" />
-            </div>
             <ProductFilterSidebar
               basePath="/san-pham"
               searchParams={p}
               attributes={filterAttributes}
               categories={categories}
+              totalProducts={totalCount}
             />
           </MobileFilterWrapper>
 
@@ -223,46 +221,48 @@ export default async function ProductsPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 lg:gap-5">
                 {products.map((product) => (
                   <Link
                     key={product.id}
                     href={`/san-pham/chi-tiet/${product.slug}`}
-                    className="group flex flex-col bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-primary transition-all"
+                    className="group flex flex-row md:flex-col bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-primary transition-all"
                   >
                     {/* Image */}
-                    <div className="aspect-square relative flex items-center justify-center p-3 border-b border-slate-100 bg-slate-50/50">
+                    <div className="shrink-0 w-[120px] h-auto min-h-[120px] md:h-[150px] md:min-h-0 md:w-full relative flex items-center justify-center p-3 border-r md:border-r-0 md:border-b border-slate-100 bg-white">
                       {product.images[0] ? (
-                        <Image
-                          src={product.images[0].url}
-                          alt={product.images[0].alt || product.name}
-                          fill
-                          className="object-contain p-4 group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
-                        />
+                        <div className="relative w-[90px] h-[90px] md:w-[100px] md:h-[100px]">
+                          <Image
+                            src={product.images[0].url}
+                            alt={product.images[0].alt || product.name}
+                            fill
+                            className="object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
+                          />
+                        </div>
                       ) : (
                         <Settings className="w-6 h-6 text-slate-300" />
                       )}
                       {product.priceOnRequest && (
-                        <span className="absolute top-2 left-2 bg-red-50 text-red-600 border border-red-100 text-[10px] font-bold px-1.5 py-0.5 uppercase tracking-wide">
-                          Yêu Cầu Báo Giá
+                        <span className="absolute top-2 left-2 bg-red-50 text-red-600 border border-red-100 text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 uppercase tracking-wide">
+                          BÁO GIÁ
                         </span>
                       )}
                     </div>
 
                     {/* Info */}
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="flex items-center justify-between text-[11px] tracking-wide text-slate-500 mb-2 border-slate-50 font-medium">
+                    <div className="p-3 md:p-4 flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center justify-between text-[11px] tracking-wide text-slate-500 mb-1 md:mb-2 font-medium">
                         <span className="truncate pr-1 uppercase text-[10px]">{product.category.name}</span>
-                        <span className="text-slate-400 font-normal">SKU: {product.sku}</span>
+                        <span className="text-slate-400 font-normal hidden sm:inline">SKU: {product.sku}</span>
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-primary leading-snug line-clamp-2 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-primary leading-snug line-clamp-2 md:mb-3">
                         {product.name}
                       </h3>
-                      <div className="mt-auto pt-3 border-t border-slate-100 flex justify-between items-center text-right">
+                      <div className="mt-auto pt-2 md:pt-3 border-t border-slate-100 flex justify-between items-center text-right">
                         {product.priceOnRequest ? (
                           <span className="text-xs font-semibold text-red-600 block mt-1 hover:underline">Liên hệ tư vấn →</span>
                         ) : (
-                          <span className="text-[15px] font-bold text-primary">{formatPrice(product.price)}</span>
+                          <span className="text-[14px] md:text-[15px] font-bold text-primary">{formatPrice(product.price)}</span>
                         )}
                       </div>
                     </div>

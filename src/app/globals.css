@@ -88,6 +88,23 @@
   * {
     @apply border-border font-sans;
   }
+  
+  /* Cải thiện max-width của vùng chứa cho giao diện rộng rãi hơn */
+  .container {
+    width: 100%;
+    max-width: 1536px !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;

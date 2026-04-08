@@ -98,12 +98,11 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
 
-      {/* ── HERO: 30/70 LAYOUT ── */}
-      <section className="bg-white border-b border-slate-200">
-        <div className="container mx-auto px-4 py-6 md:py-8 flex flex-col lg:flex-row gap-6 items-stretch">
+      {/* ── HOMEPAGE LAYOUT: 20/80 ── */}
+      <div className="container mx-auto px-4 py-6 md:py-8 flex flex-col lg:flex-row gap-6 items-start">
           
-          {/* Cột trái (Desktop): Danh mục dạng List (30%) */}
-          <div className="hidden lg:flex flex-col w-[30%] shrink-0 border border-slate-200 bg-white">
+          {/* Cột trái (Desktop): Sidebar cố định (20%) */}
+          <div className="hidden lg:flex flex-col w-[20%] shrink-0 border border-slate-200 bg-white sticky top-24 h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
             <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <h2 className="font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
                 <Settings className="w-5 h-5 text-primary" /> Danh Mục
@@ -111,15 +110,14 @@ export default async function HomePage() {
             </div>
             <div className="flex flex-col py-2">
               {categories.slice(0, 8).map((cat) => {
-                const IconComponent: LucideIcon = categoryIconMap[cat.slug] ?? CircleDot;
                 return (
                   <Link
                     key={cat.id}
                     href={`/san-pham/${cat.slug}`}
-                    className="flex items-center gap-3 px-5 py-3 hover:bg-blue-50 transition-colors group border-b border-slate-50 last:border-0"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors group border-b border-slate-50 last:border-0"
                   >
-                    <IconComponent className="w-5 h-5 text-slate-400 group-hover:text-primary transition-colors" strokeWidth={1.5} />
-                    <span className="text-sm font-medium text-slate-700 group-hover:text-primary group-hover:font-semibold transition-all">
+                    <div className="w-6 h-6 shrink-0 bg-slate-200 group-hover:bg-blue-200 transition-colors flex items-center justify-center"></div>
+                    <span className="text-[13px] font-medium text-slate-700 group-hover:text-primary group-hover:font-semibold transition-all">
                       {cat.name}
                     </span>
                     <ArrowRight className="w-4 h-4 ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -132,50 +130,24 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Cột phải: Hero Banner & Tuyên ngôn (Overlay, 70%) */}
-          <div className="flex-1 w-full relative min-h-[400px] lg:min-h-[500px] flex items-stretch border border-slate-200 overflow-hidden bg-slate-900 group">
+          {/* Cột phải: Nội dung chính (80%) */}
+          <div className="flex-1 w-full flex flex-col gap-8 min-w-0">
+            
+            {/* Hero Banner */}
+            <div className="w-full relative min-h-[200px] lg:min-h-[250px] flex items-stretch border border-slate-200 overflow-hidden bg-slate-900 group shrink-0">
+            <Link href="/san-pham" className="absolute inset-0 z-20"></Link>
             {/* Background Image */}
             <Image 
               src={(heroBanner?.image && heroBanner.image.length > 0) ? heroBanner.image : "/hero_banner_machining.png"} 
               alt={heroBanner?.title || "Vật Tư Cơ Khí Khải Hào"} 
               fill 
-              className="object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
               priority
             />
-            
-            {/* Overlay Banner Text */}
-            <div className="relative z-10 flex flex-col justify-center p-8 lg:p-14 w-full md:w-3/4">
-              <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm text-blue-100 font-semibold px-3 py-1.5 text-xs uppercase tracking-wider mb-6 self-start border border-blue-400/30">
-                <Zap className="w-3.5 h-3.5 fill-current" /> Phân phối toàn quốc
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-white">
-                Vật Tư Cơ Khí <br/>
-                <span className="font-extrabold text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-teal-300">
-                  Chính Xác
-                </span>
-              </h1>
-              <p className="text-slate-300 text-base max-w-md mb-8 leading-relaxed font-medium">
-                Nhà phân phối chính hãng các dòng sản phẩm ổ bi, bánh răng, dây đai truyền động. Hỗ trợ gia công chi tiết máy CNC theo bản vẽ tùy chỉnh với độ dung sai lý tưởng.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/san-pham">
-                  <button className="bg-primary hover:bg-blue-600 text-white font-semibold text-sm px-8 py-3.5 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide w-full sm:w-auto">
-                    Xem Sản Phẩm <ArrowRight className="w-4 h-4" />
-                  </button>
-                </Link>
-                <Link href="/bao-gia">
-                  <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-semibold text-sm px-8 py-3.5 transition-colors uppercase tracking-wide w-full sm:w-auto shadow-sm">
-                    Gửi Bản Vẽ
-                  </button>
-                </Link>
-              </div>
-            </div>
           </div>
           
-        </div>
-
-        {/* Danh mục Mobile (Hiển thị dạng cuộn ngang, ẩn trên Desktop vì đã có List) */}
-        <div className="lg:hidden container mx-auto px-4 pb-8">
+            {/* Danh mục Mobile (Hiển thị dạng cuộn ngang, ẩn trên Desktop vì đã có List) */}
+            <div className="lg:hidden pb-4 shrink-0 overflow-hidden w-full">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
             <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Danh mục phổ biến</h2>
             <Link href="/san-pham" className="text-primary text-sm hover:underline font-medium">Xem tất cả</Link>
@@ -209,14 +181,12 @@ export default async function HomePage() {
               </span>
             </Link>
           </div>
-        </div>
-      </section>
+            </div>
 
-
-      {/* ── SẢN PHẨM NỔI BẬT (HIGHLIGHTS) ── */}
-      {featuredProducts.length > 0 && (
-        <section className="py-12 bg-white">
-          <div className="container mx-auto px-4">
+            {/* ── SẢN PHẨM NỔI BẬT (HIGHLIGHTS) ── */}
+            {featuredProducts.length > 0 && (
+              <div className="w-full shrink-0">
+                <div className="w-full">
             <div className="flex items-center justify-between mb-8 pb-3 border-b border-slate-100">
               <h2 className="font-bold text-2xl text-slate-900 tracking-tight flex items-center gap-3">
                 <span className="w-1.5 h-6 bg-primary inline-block" />
@@ -237,14 +207,16 @@ export default async function HomePage() {
                   <div className="absolute top-2 left-2 bg-red-50 text-red-600 border border-red-100 text-[10px] font-bold px-2 py-0.5 z-10 uppercase tracking-wide">
                     Tiêu điểm
                   </div>
-                  <div className="aspect-square relative flex items-center justify-center p-4 border-b border-slate-100 bg-slate-50/50">
+                  <div className="h-[150px] w-full relative flex items-center justify-center p-3 border-b border-slate-100 bg-white">
                     {product.images[0] ? (
-                      <Image
-                        src={product.images[0].url}
-                        alt={product.images[0].alt || product.name}
-                        fill
-                        className="object-contain p-6 group-hover:scale-105 transition-transform duration-500"
-                      />
+                      <div className="relative w-[100px] h-[100px]">
+                        <Image
+                          src={product.images[0].url}
+                          alt={product.images[0].alt || product.name}
+                          fill
+                          className="object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
+                        />
+                      </div>
                     ) : (
                       <Settings className="w-10 h-10 text-slate-300" />
                     )}
@@ -268,12 +240,12 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-        </section>
+        </div>
       )}
 
       {/* ── CATALOG: SẢN PHẨM MỚI (DATA GRID) ── */}
-      <section className="py-12 mb-8 bg-slate-50 border-t border-slate-200">
-        <div className="container mx-auto px-4">
+      <div className="w-full shrink-0 border-t border-slate-200 pt-8 mb-8">
+        <div className="w-full">
           <div className="flex flex-col mb-8 text-center items-center">
             <h2 className="font-bold text-3xl text-slate-900 tracking-tight mb-2">
               Sản phẩm mới cập nhật
@@ -295,14 +267,16 @@ export default async function HomePage() {
                     href={`/san-pham/chi-tiet/${product.slug}`}
                     className={`snap-start shrink-0 w-[45vw] max-w-[200px] md:w-auto md:max-w-none group flex flex-col bg-white hover:bg-slate-50 transition-colors relative border border-slate-200 md:border-0 md:border-b-0 ${idx >= 6 ? 'lg:border-t lg:border-slate-100' : ''} ${idx >= 4 ? 'md:border-t md:border-slate-100' : ''}`}
                   >
-                    <div className="aspect-square bg-white relative flex items-center justify-center border-b border-slate-100 p-2">
+                    <div className="h-[150px] w-full bg-white relative flex items-center justify-center border-b border-slate-100 p-3">
                       {product.images[0] ? (
-                        <Image
-                          src={product.images[0].url}
-                          alt={product.images[0].alt || product.name}
-                          fill
-                          className="object-contain p-5 group-hover:-translate-y-1 transition-transform duration-300"
-                        />
+                        <div className="relative w-[100px] h-[100px]">
+                          <Image
+                            src={product.images[0].url}
+                            alt={product.images[0].alt || product.name}
+                            fill
+                            className="object-contain group-hover:-translate-y-1 transition-transform duration-300 mix-blend-multiply"
+                          />
+                        </div>
                       ) : (
                         <Settings className="w-8 h-8 text-slate-300" />
                       )}
@@ -337,37 +311,11 @@ export default async function HomePage() {
               </button>
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* ── CTA: GIA CÔNG BẢN VẼ ── */}
-      <section className="bg-slate-900 overflow-hidden relative border-t border-slate-800">
-        <div className="container mx-auto px-4 py-16 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 max-w-5xl mx-auto p-4">
-            <div>
-              <h2 className="text-white font-bold text-3xl md:text-4xl tracking-tight mb-4">
-                Gia công chi tiết máy <br/> theo bản vẽ
-              </h2>
-              <p className="text-slate-300 text-sm max-w-md leading-relaxed border-l-2 border-primary pl-4">
-                Xưởng cơ khí nội bộ ứng dụng công nghệ tiện, phay CNC hiện đại. Cam kết độ chính xác cao và bàn giao đúng tiến độ. Gửi báo giá mộc định trong vòng 2 giờ.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 shrink-0">
-              <Link href="/lien-he">
-                <button className="bg-primary text-white font-semibold text-sm px-8 py-4 shadow-lg hover:bg-blue-600 transition-colors flex items-center">
-                  Gửi Bản Vẽ Ngay <ArrowRight className="w-4 h-4 ml-2" />
-                </button>
-              </Link>
-              <a href="tel:0901234567">
-                <button className="bg-slate-800 text-white border border-slate-700 font-semibold text-sm px-8 py-4 hover:bg-slate-700 transition-colors flex items-center w-full justify-center">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Hotline Hỗ Trợ
-                </button>
-              </a>
-            </div>
           </div>
         </div>
-      </section>
+      </div>
+
+    </div>
     </div>
   );
 }

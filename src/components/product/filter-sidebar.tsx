@@ -33,6 +33,8 @@ type ProductFilterSidebarProps = {
   categories: FilterCategory[];
   currentCategoryId?: number;
   currentParentCategoryId?: number | null;
+  totalProducts?: number;
+  onClose?: () => void;
 };
 
 function toSingle(value: string | string[] | undefined): string {
@@ -56,6 +58,8 @@ export default function ProductFilterSidebar({
   categories,
   currentCategoryId,
   currentParentCategoryId,
+  totalProducts,
+  onClose,
 }: ProductFilterSidebarProps) {
   const router = useRouter();
   const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set([
@@ -123,19 +127,31 @@ export default function ProductFilterSidebar({
     [basePath, router],
   );
 
+  const handleClearFilters = () => {
+    if (formRef.current) {
+      const inputs = formRef.current.querySelectorAll("input");
+      inputs.forEach((input) => {
+        if (input.type === "checkbox" || input.type === "radio") {
+          input.checked = false;
+        } else if (input.type === "text" || input.type === "number") {
+          if (input.name !== "page") {
+            input.value = "";
+          }
+        }
+      });
+      setOptionSearch({});
+    }
+    router.replace(basePath, { scroll: false });
+  };
+
   return (
     <form
       ref={formRef}
-      className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sticky top-24 h-[calc(100vh-7.25rem)] max-h-[760px] flex flex-col"
+      className="bg-white lg:rounded-xl lg:shadow-sm lg:border lg:border-slate-200 lg:p-5 p-5 lg:sticky lg:top-24 w-full h-full lg:h-[calc(100vh-7.25rem)] lg:max-h-[760px] flex flex-col flex-1 min-h-0"
       method="GET"
       onSubmit={(event) => event.preventDefault()}
     >
-      <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
-        <Filter className="w-5 h-5 text-blue-600" />
-        <h2 className="font-bold text-slate-800 text-lg">Bộ lọc</h2>
-      </div>
-
-      <div className="mt-4 space-y-5 overflow-y-auto pr-1">
+      <div className="flex-1 overflow-y-auto pr-2 space-y-5 min-h-0">
         <div>
           <h3 className="text-sm font-semibold text-slate-800 mb-2">Từ khóa</h3>
           <div className="relative">
@@ -322,12 +338,26 @@ export default function ProductFilterSidebar({
 
       <input type="hidden" name="page" value="1" />
 
-      <div className="pt-4 mt-4 border-t border-slate-100">
-        <Link href={basePath} className="block">
-          <Button type="button" variant="outline" className="w-full">
-            Xóa lọc
+      <div className="pt-4 mt-4 border-t border-slate-100 shrink-0 flex gap-2">
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="flex-1 text-slate-600 bg-slate-50 hover:bg-slate-100"
+          onClick={handleClearFilters}
+        >
+          Xóa lọc
+        </Button>
+        {totalProducts !== undefined && (
+          <Button 
+            type="button" 
+            className="flex-2 bg-primary hover:bg-blue-600 font-semibold shadow-sm lg:pointer-events-none"
+            onClick={() => {
+              if (onClose) onClose();
+            }}
+          >
+            Xem {totalProducts} sản phẩm
           </Button>
-        </Link>
+        )}
       </div>
     </form>
   );
