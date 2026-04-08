@@ -52,7 +52,7 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
 
 echo ""
 echo ">>> Trạng thái services:"
-docker compose -f "$COMPOSE_FILE" ps
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
 
 echo ""
 echo "======================================"

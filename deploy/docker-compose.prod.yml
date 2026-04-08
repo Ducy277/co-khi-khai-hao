@@ -27,9 +27,11 @@ services:
       context: ..
       dockerfile: Dockerfile
       target: migration-runner
-    command: ./node_modules/.bin/prisma migrate deploy
+    command: sh -c "./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed"
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
