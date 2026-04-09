@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
-  Phone,
   Settings,
   CircleDot,
   Cog,
@@ -11,9 +10,7 @@ import {
   Link2,
   Gauge,
   Layers,
-  Zap,
   type LucideIcon,
-  MessageSquare,
 } from "lucide-react";
 
 export const metadata = {
@@ -125,7 +122,7 @@ export default async function HomePage() {
                 );
               })}
               <Link href="/san-pham" className="px-5 py-3 text-sm font-semibold text-primary hover:underline text-center mt-2 border-t border-slate-100 pt-4">
-                Xem tất cả danh mục →
+                Xem tất cả →
               </Link>
             </div>
           </div>

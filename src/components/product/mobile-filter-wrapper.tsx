@@ -27,7 +27,7 @@ export default function MobileFilterWrapper({
     <>
       {/* Mobile Sticky Bottom Trigger */}
       <div 
-        className={`lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white border-t border-slate-200 rounded-t-xl pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)] cursor-pointer transition-transform duration-300 ${isOpen ? 'translate-y-full' : 'translate-y-0'}`}
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-60 bg-white border-t border-slate-200 rounded-t-xl pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)] cursor-pointer transition-transform duration-300"
         onClick={() => setIsOpen(true)}
       >
         <div className="flex flex-col items-center justify-center pt-2 pb-3">
@@ -48,13 +48,13 @@ export default function MobileFilterWrapper({
       {/* Mobile View: Bottom Sheet Filter */}
       {/* Backdrop */}
       <div 
-        className={`lg:hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} 
+        className={`lg:hidden fixed inset-0 z-100 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} 
         onClick={() => setIsOpen(false)}
       />
       
       {/* Sheet Content */}
       <div 
-        className={`lg:hidden fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-2xl transition-transform duration-300 ease-out transform ${isOpen ? "translate-y-0" : "translate-y-full"} flex flex-col max-h-[85vh] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]`}
+        className={`lg:hidden fixed bottom-0 left-0 right-0 z-101 bg-white rounded-t-2xl transition-transform duration-300 ease-out transform ${isOpen ? "translate-y-0" : "translate-y-full"} flex flex-col max-h-[85vh] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]`}
       >
         {/* Drag handle & Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">

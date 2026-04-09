@@ -9,7 +9,6 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import QuoteCartBadge from "@/components/quote/quote-cart-badge";
@@ -25,7 +24,7 @@ type HeaderClientProps = {
   categories: HeaderCategory[];
 };
 
-export default function HeaderClient({ categories }: HeaderClientProps) {
+export default function HeaderClient({ }: HeaderClientProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();

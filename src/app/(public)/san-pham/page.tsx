@@ -3,9 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { Prisma } from "@prisma/client";
 import { Settings, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import ProductFilterSidebar from "@/components/product/filter-sidebar";
 import MobileFilterWrapper from "@/components/product/mobile-filter-wrapper";
+import PaginationControls from "@/components/ui/pagination-controls";
+import ProductCard from "@/components/product/product-card";
 import { buildSearchFilter } from "@/lib/search";
 
 export const metadata = {
@@ -57,6 +59,8 @@ function buildQueryString(
 
   return q.toString();
 }
+
+
 
 export default async function ProductsPage({
   searchParams,
@@ -173,27 +177,22 @@ export default async function ProductsPage({
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-16 pt-6">
-      <div className="container mx-auto sm:px-6 mb-6">
-        {/* Breadcrumb & Title */}
-        <div className="bg-white border border-slate-200 p-4 md:p-6 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-slate-500 mb-4 border-b border-slate-100 pb-2">
-            <Link href="/" className="hover:text-primary transition-colors">Trang chủ</Link>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-slate-800">Sản phẩm</span>
+    <div className="bg-slate-50 min-h-screen pb-20">
+      <div className="bg-white border-b border-slate-200 py-6">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center text-sm text-slate-500 mb-2 flex-wrap">
+            <Link href="/" className="hover:text-blue-600 transition-colors whitespace-nowrap">Trang chủ</Link>
+            <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
+            <span className="text-slate-800 font-medium whitespace-nowrap">Sản phẩm</span>
           </div>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              {q ? `Kết quả tìm kiếm: "${q}"` : "Danh sách sản phẩm"}
-            </h1>
-            <span className="text-sm font-medium text-slate-500">
-              {totalCount} sản phẩm
-            </span>
-          </div>
+          <h1 className="text-3xl font-bold text-slate-900">
+            {q ? `Kết quả tìm kiếm: "${q}"` : "Danh sách sản phẩm"}
+          </h1>
+          <p className="text-slate-500 mt-2">Hiển thị {products.length} trên tổng {totalCount} sản phẩm.</p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
 
           {/* Sidebar */}
@@ -221,79 +220,18 @@ export default async function ProductsPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 lg:gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4">
                 {products.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/san-pham/chi-tiet/${product.slug}`}
-                    className="group flex flex-row md:flex-col bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-primary transition-all"
-                  >
-                    {/* Image */}
-                    <div className="shrink-0 w-[120px] h-auto min-h-[120px] md:h-[150px] md:min-h-0 md:w-full relative flex items-center justify-center p-3 border-r md:border-r-0 md:border-b border-slate-100 bg-white">
-                      {product.images[0] ? (
-                        <div className="relative w-[90px] h-[90px] md:w-[100px] md:h-[100px]">
-                          <Image
-                            src={product.images[0].url}
-                            alt={product.images[0].alt || product.name}
-                            fill
-                            className="object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
-                          />
-                        </div>
-                      ) : (
-                        <Settings className="w-6 h-6 text-slate-300" />
-                      )}
-                      {product.priceOnRequest && (
-                        <span className="absolute top-2 left-2 bg-red-50 text-red-600 border border-red-100 text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 uppercase tracking-wide">
-                          BÁO GIÁ
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="p-3 md:p-4 flex flex-col flex-1 min-w-0">
-                      <div className="flex items-center justify-between text-[11px] tracking-wide text-slate-500 mb-1 md:mb-2 font-medium">
-                        <span className="truncate pr-1 uppercase text-[10px]">{product.category.name}</span>
-                        <span className="text-slate-400 font-normal hidden sm:inline">SKU: {product.sku}</span>
-                      </div>
-                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-primary leading-snug line-clamp-2 md:mb-3">
-                        {product.name}
-                      </h3>
-                      <div className="mt-auto pt-2 md:pt-3 border-t border-slate-100 flex justify-between items-center text-right">
-                        {product.priceOnRequest ? (
-                          <span className="text-xs font-semibold text-red-600 block mt-1 hover:underline">Liên hệ tư vấn →</span>
-                        ) : (
-                          <span className="text-[14px] md:text-[15px] font-bold text-primary">{formatPrice(product.price)}</span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             )}
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-12 mb-8">
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }).map((_, idx) => {
-                    const pageNum = idx + 1;
-                    const isActive = pageNum === page;
-                    return (
-                      <Link
-                        key={pageNum}
-                        href={`/san-pham?${buildQueryString(p, { page: pageNum.toString() })}`}
-                        className={`w-10 h-10 flex items-center justify-center text-sm font-medium transition-all border ${
-                          isActive
-                            ? "bg-primary text-white border-primary shadow-sm"
-                            : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-slate-400"
-                        }`}
-                      >
-                        {pageNum}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
+              <PaginationControls
+                currentPage={page}
+                totalPages={totalPages}
+              />
             )}
           </div>
         </div>
