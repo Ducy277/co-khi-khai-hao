@@ -47,6 +47,12 @@ echo ">>> Dừng services cũ..."
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down --remove-orphans || true
 
 echo ""
+echo ">>> Dọn dẹp cache Docker để giải phóng dung lượng đĩa (tránh lỗi No space left)..."
+docker system prune -f || true
+docker builder prune -f || true
+
+
+echo ""
 echo ">>> Build image mới và khởi động (có thể mất 5-10 phút lần đầu)..."
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
 
