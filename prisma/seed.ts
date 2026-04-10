@@ -2,11 +2,227 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
+import * as fs from "fs";
+import * as path from "path";
+import * as Papa from "papaparse";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
 const prisma = new PrismaClient({ adapter });
+
+function slugify(str: string): string {
+  if (!str) return "";
+  let slug = str.toLowerCase().trim();
+  slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, "a");
+  slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, "e");
+  slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, "i");
+  slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, "o");
+  slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, "u");
+  slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, "y");
+  slug = slug.replace(/đ/gi, "d");
+  slug = slug.replace(/[^a-z0-9]+/g, "-");
+  slug = slug.replace(/^-+|-+$/g, "");
+  return slug;
+}
+
+interface CSVRow {
+  "SKU": string;
+  "Danh mục": string;
+  "Danh mục con": string;
+  "Tên sản phẩm": string;
+  "Thông số kỹ thuật": string;
+  "Xuất xứ": string;
+  "Giá (VNĐ)": string;
+}
+
+async function seedCatalogFromCSV() {
+  const csvFilePath = path.join(__dirname, "san_pham_chuan_hoa.csv");
+  if (!fs.existsSync(csvFilePath)) {
+    console.log(`⚠️ Không tìm thấy file ${csvFilePath}, bỏ qua seed catalog từ CSV.`);
+    return;
+  }
+
+  const csvData = fs.readFileSync(csvFilePath, "utf8");
+  const parsed = Papa.parse<CSVRow>(csvData, {
+    header: true,
+    skipEmptyLines: true,
+  });
+
+  if (parsed.errors.length > 0) {
+    console.error("Lỗi khi đọc file CSV:", parsed.errors);
+    return;
+  }
+
+  console.log(`📂 Đọc được ${parsed.data.length} sản phẩm từ CSV.`);
+
+  const categoryMap = new Map<string, number>();
+  const brandMap = new Map<string, number>();
+  const attributeMap = new Map<string, { id: number; options: Set<string>; type: string }>();
+
+  // START IMPORT
+  console.log("➡️ Xóa dữ liệu catalog cũ...");
+  await prisma.quoteRequestItem.deleteMany({});
+  await prisma.productAttributeValue.deleteMany({});
+  await prisma.productImage.deleteMany({});
+  await prisma.product.deleteMany({});
+  await prisma.attributeOption.deleteMany({});
+  await prisma.categoryAttribute.deleteMany({});
+  await prisma.brand.deleteMany({});
+  await prisma.category.deleteMany({});
+
+  console.log("➡️ Tạo danh mục...");
+  for (const row of parsed.data) {
+    const l1Name = row["Danh mục"]?.trim();
+    const l2Name = row["Danh mục con"]?.trim();
+
+    if (!l1Name) continue;
+
+    const l1Slug = slugify(l1Name);
+    if (!categoryMap.has(l1Slug)) {
+      const l1Cat = await prisma.category.create({
+        data: { name: l1Name, slug: l1Slug },
+      });
+      categoryMap.set(l1Slug, l1Cat.id);
+    }
+
+    if (l2Name) {
+      const l2Slug = slugify(l2Name);
+      if (!categoryMap.has(l2Slug)) {
+        const l1Id = categoryMap.get(l1Slug)!;
+        const l2Cat = await prisma.category.create({
+          data: { name: l2Name, slug: `${l1Slug}-${l2Slug}`, parentId: l1Id },
+        });
+        categoryMap.set(l2Slug, l2Cat.id);
+      }
+    }
+  }
+
+  console.log("➡️ Tạo thương hiệu...");
+  for (const row of parsed.data) {
+    let brandName = row["Xuất xứ"]?.trim();
+    if (!brandName) brandName = "No Brand";
+
+    const brandSlug = slugify(brandName);
+    if (!brandMap.has(brandSlug)) {
+      const brand = await prisma.brand.create({
+        data: { name: brandName === "No Brand" ? "Không rõ" : brandName, slug: brandSlug },
+      });
+      brandMap.set(brandSlug, brand.id);
+    }
+  }
+
+  console.log("➡️ Tạo thuộc tính (Attributes)...");
+  const rawAttributes = new Map<string, { name: string, categoryId: number, options: Set<string> }>();
+  for (const row of parsed.data) {
+    const l1Name = row["Danh mục"]?.trim();
+    const l1Slug = l1Name ? slugify(l1Name) : "";
+    const l1Id = categoryMap.get(l1Slug);
+    if (!l1Id) continue;
+
+    const tskt = row["Thông số kỹ thuật"];
+    if (!tskt) continue;
+
+    const pairs = tskt.split("|").map(t => t.trim()).filter(Boolean);
+    for (const pair of pairs) {
+      const parts = pair.split(":");
+      if (parts.length >= 2) {
+        const attrName = parts[0].trim();
+        const attrValue = parts.slice(1).join(":").trim();
+        const attrSlug = slugify(attrName);
+        const compositeKey = `${l1Id}_${attrSlug}`;
+
+        if (!rawAttributes.has(compositeKey)) {
+          rawAttributes.set(compositeKey, { name: attrName, categoryId: l1Id, options: new Set() });
+        }
+        if (attrValue) rawAttributes.get(compositeKey)!.options.add(attrValue);
+      }
+    }
+  }
+
+  for (const [compositeKey, meta] of Array.from(rawAttributes.entries())) {
+    const friendlySlug = slugify(meta.name);
+    const attr = await prisma.categoryAttribute.create({
+      data: {
+        name: meta.name,
+        slug: friendlySlug,
+        type: "select",
+        filterType: "checkbox",
+        isGlobal: false,
+        categoryId: meta.categoryId,
+        options: {
+          create: Array.from(meta.options).map((opt, idx) => ({ value: opt, sortOrder: idx })),
+        },
+      },
+      include: { options: true },
+    });
+
+    attributeMap.set(compositeKey, { id: attr.id, options: new Set(attr.options.map(o => o.value)), type: attr.type });
+  }
+
+  console.log("➡️ Import sản phẩm (tiến trình này có thể mất vài phút)...");
+  let importedCount = 0;
+  for (let i = 0; i < parsed.data.length; i++) {
+    const row = parsed.data[i];
+    const name = row["Tên sản phẩm"]?.trim();
+    if (!name) continue;
+
+    const sku = row["SKU"]?.trim();
+    const l1Name = row["Danh mục"]?.trim();
+    const l2Name = row["Danh mục con"]?.trim();
+    const l1Id = categoryMap.get(slugify(l1Name));
+    const l2Id = l2Name ? categoryMap.get(slugify(l2Name)) : null;
+
+    const brandSlug = slugify(row["Xuất xứ"]?.trim() || "Không rõ");
+    const brandId = brandMap.get(brandSlug);
+
+    const priceRaw = row["Giá (VNĐ)"]?.trim().replace(/[^\d]/g, "");
+    const priceNum = priceRaw ? parseInt(priceRaw, 10) : null;
+    const priceOnRequest = !priceNum;
+
+    const categoryIdForProduct = l2Id || l1Id;
+    if (!categoryIdForProduct) continue;
+
+    const tskt = row["Thông số kỹ thuật"];
+    const attrValuesToCreate = [];
+    if (tskt && l1Id) {
+      const pairs = tskt.split("|").map(t => t.trim()).filter(Boolean);
+      for (const pair of pairs) {
+        const parts = pair.split(":");
+        if (parts.length >= 2) {
+          const attrName = parts[0].trim();
+          const attrValue = parts.slice(1).join(":").trim();
+          const compositeKey = `${l1Id}_${slugify(attrName)}`;
+          const attrDef = attributeMap.get(compositeKey);
+          if (attrDef) {
+            attrValuesToCreate.push({ attributeId: attrDef.id, value: attrValue });
+          }
+        }
+      }
+    }
+
+    const slug = slugify(name);
+    try {
+      await prisma.product.create({
+        data: {
+          name: name,
+          slug: `${slug}-${sku}`,
+          sku: sku,
+          price: priceNum,
+          priceOnRequest: priceOnRequest,
+          categoryId: categoryIdForProduct,
+          brandId: brandId,
+          attributeValues: { create: attrValuesToCreate },
+        },
+      });
+      importedCount++;
+    } catch (e: any) {
+      console.error(`Lỗi import mục SKU ${sku}: ${e.message}`);
+    }
+  }
+
+  console.log(`✅ Import hoàn tất ${importedCount} sản phẩm.`);
+}
 
 async function main() {
   console.log("🌱 Bắt đầu seed data...");
@@ -31,370 +247,7 @@ async function main() {
   console.log("✅ Admin user created:", adminEmail);
 
   // ============================================================
-  // 2. BRANDS
-  // ============================================================
-  const brands = await Promise.all([
-    prisma.brand.upsert({
-      where: { slug: "skf" },
-      create: { name: "SKF", slug: "skf", sortOrder: 1 },
-      update: {},
-    }),
-    prisma.brand.upsert({
-      where: { slug: "nsk" },
-      create: { name: "NSK", slug: "nsk", sortOrder: 2 },
-      update: {},
-    }),
-    prisma.brand.upsert({
-      where: { slug: "fag" },
-      create: { name: "FAG", slug: "fag", sortOrder: 3 },
-      update: {},
-    }),
-    prisma.brand.upsert({
-      where: { slug: "ntn" },
-      create: { name: "NTN", slug: "ntn", sortOrder: 4 },
-      update: {},
-    }),
-    prisma.brand.upsert({
-      where: { slug: "thuong-hieu-khac" },
-      create: { name: "Thương hiệu khác", slug: "thuong-hieu-khac", sortOrder: 99 },
-      update: {},
-    }),
-  ]);
-  console.log("✅ Brands created:", brands.length);
-
-  // ============================================================
-  // 3. CATEGORIES
-  // ============================================================
-  // Cha
-  const catOBi = await prisma.category.upsert({
-    where: { slug: "o-bi" },
-    create: {
-      name: "Ổ Bi",
-      slug: "o-bi",
-      description: "Các loại ổ bi chính hãng SKF, NSK, FAG, NTN",
-      sortOrder: 1,
-    },
-    update: {},
-  });
-  const catBanhRang = await prisma.category.upsert({
-    where: { slug: "banh-rang" },
-    create: {
-      name: "Bánh Răng",
-      slug: "banh-rang",
-      description: "Bánh răng trụ, bánh răng côn, bánh răng vít me",
-      sortOrder: 2,
-    },
-    update: {},
-  });
-  const catBuLong = await prisma.category.upsert({
-    where: { slug: "bu-long-oc-vit" },
-    create: {
-      name: "Bu Lông - Ốc Vít",
-      slug: "bu-long-oc-vit",
-      description: "Bu lông, ốc vít, đai ốc các loại",
-      sortOrder: 3,
-    },
-    update: {},
-  });
-  const catDayDai = await prisma.category.upsert({
-    where: { slug: "day-dai" },
-    create: {
-      name: "Dây Đai",
-      slug: "day-dai",
-      description: "Dây đai thang, dây đai răng, dây đai phẳng",
-      sortOrder: 4,
-    },
-    update: {},
-  });
-  const catKhopNoi = await prisma.category.upsert({
-    where: { slug: "khop-noi" },
-    create: {
-      name: "Khớp Nối",
-      slug: "khop-noi",
-      description: "Khớp nối trục, khớp nối mềm, khớp nối cứng",
-      sortOrder: 5,
-    },
-    update: {},
-  });
-
-  // Con
-  const catOBiCau = await prisma.category.upsert({
-    where: { slug: "o-bi-cau" },
-    create: {
-      name: "Ổ Bi Cầu",
-      slug: "o-bi-cau",
-      description: "Ổ bi cầu 1 dãy, 2 dãy chịu lực hướng tâm",
-      parentId: catOBi.id,
-      sortOrder: 1,
-    },
-    update: {},
-  });
-  const catOBiDua = await prisma.category.upsert({
-    where: { slug: "o-bi-dua" },
-    create: {
-      name: "Ổ Bi Đũa",
-      slug: "o-bi-dua",
-      description: "Ổ bi đũa trụ, đũa côn chịu tải trọng lớn",
-      parentId: catOBi.id,
-      sortOrder: 2,
-    },
-    update: {},
-  });
-  const catBanhRangTru = await prisma.category.upsert({
-    where: { slug: "banh-rang-tru" },
-    create: {
-      name: "Bánh Răng Trụ",
-      slug: "banh-rang-tru",
-      parentId: catBanhRang.id,
-      sortOrder: 1,
-    },
-    update: {},
-  });
-
-  console.log("✅ Categories created");
-
-  // ============================================================
-  // 4. GLOBAL ATTRIBUTES
-  // ============================================================
-  const upsertGlobalAttr = async (data: {
-    name: string; slug: string; type: string; filterType: string; sortOrder: number;
-  }) => {
-    const existing = await prisma.categoryAttribute.findFirst({
-      where: { slug: data.slug, isGlobal: true, categoryId: null },
-    });
-    if (existing) return existing;
-    return prisma.categoryAttribute.create({ data: { ...data, isGlobal: true } });
-  };
-
-  const attrBrand = await upsertGlobalAttr({ name: "Thương Hiệu", slug: "thuong-hieu", type: "select", filterType: "checkbox", sortOrder: 1 });
-  const attrMaterial = await upsertGlobalAttr({ name: "Vật Liệu", slug: "vat-lieu", type: "select", filterType: "checkbox", sortOrder: 2 });
-  const attrOrigin = await upsertGlobalAttr({ name: "Xuất Xứ", slug: "xuat-xu", type: "select", filterType: "checkbox", sortOrder: 3 });
-
-  // Options for global attributes
-  await prisma.attributeOption.createMany({
-    data: [
-      { attributeId: attrMaterial.id, value: "Thép chịu lực", sortOrder: 1 },
-      { attributeId: attrMaterial.id, value: "Thép không gỉ (Inox)", sortOrder: 2 },
-      { attributeId: attrMaterial.id, value: "Thép carbon", sortOrder: 3 },
-      { attributeId: attrMaterial.id, value: "Nhôm", sortOrder: 4 },
-      { attributeId: attrOrigin.id, value: "Thụy Điển", sortOrder: 1 },
-      { attributeId: attrOrigin.id, value: "Nhật Bản", sortOrder: 2 },
-      { attributeId: attrOrigin.id, value: "Đức", sortOrder: 3 },
-      { attributeId: attrOrigin.id, value: "Trung Quốc", sortOrder: 4 },
-      { attributeId: attrOrigin.id, value: "Việt Nam", sortOrder: 5 },
-      { attributeId: attrBrand.id, value: "SKF", sortOrder: 1 },
-      { attributeId: attrBrand.id, value: "NSK", sortOrder: 2 },
-      { attributeId: attrBrand.id, value: "FAG", sortOrder: 3 },
-      { attributeId: attrBrand.id, value: "NTN", sortOrder: 4 },
-    ],
-    skipDuplicates: true,
-  });
-
-  // ============================================================
-  // 5. CATEGORY-SPECIFIC ATTRIBUTES (Ổ bi cầu)
-  // ============================================================
-  const attrInnerD = await prisma.categoryAttribute.upsert({
-    where: { categoryId_slug: { categoryId: catOBiCau.id, slug: "duong-kinh-trong" } },
-    create: {
-      name: "Đường Kính Trong",
-      slug: "duong-kinh-trong",
-      unit: "mm",
-      type: "number",
-      filterType: "range",
-      categoryId: catOBiCau.id,
-      sortOrder: 4,
-    },
-    update: {},
-  });
-  const attrOuterD = await prisma.categoryAttribute.upsert({
-    where: { categoryId_slug: { categoryId: catOBiCau.id, slug: "duong-kinh-ngoai" } },
-    create: {
-      name: "Đường Kính Ngoài",
-      slug: "duong-kinh-ngoai",
-      unit: "mm",
-      type: "number",
-      filterType: "range",
-      categoryId: catOBiCau.id,
-      sortOrder: 5,
-    },
-    update: {},
-  });
-  const attrWidth = await prisma.categoryAttribute.upsert({
-    where: { categoryId_slug: { categoryId: catOBiCau.id, slug: "chieu-rong" } },
-    create: {
-      name: "Chiều Rộng",
-      slug: "chieu-rong",
-      unit: "mm",
-      type: "number",
-      filterType: "range",
-      categoryId: catOBiCau.id,
-      sortOrder: 6,
-    },
-    update: {},
-  });
-  const attrShield = await prisma.categoryAttribute.upsert({
-    where: { categoryId_slug: { categoryId: catOBiCau.id, slug: "loai-chan" } },
-    create: {
-      name: "Loại Chắn",
-      slug: "loai-chan",
-      type: "select",
-      filterType: "checkbox",
-      categoryId: catOBiCau.id,
-      sortOrder: 7,
-    },
-    update: {},
-  });
-
-  await prisma.attributeOption.createMany({
-    data: [
-      { attributeId: attrShield.id, value: "ZZ (Chắn thép 2 phía)", sortOrder: 1 },
-      { attributeId: attrShield.id, value: "2RS (Cao su 2 phía)", sortOrder: 2 },
-      { attributeId: attrShield.id, value: "Open (Không chắn)", sortOrder: 3 },
-      { attributeId: attrShield.id, value: "RS (Cao su 1 phía)", sortOrder: 4 },
-    ],
-    skipDuplicates: true,
-  });
-
-  console.log("✅ Attributes created");
-
-  // ============================================================
-  // 6. SAMPLE PRODUCTS (Ổ bi cầu)
-  // ============================================================
-  const skfBrand = brands[0]; // SKF
-  const nskBrand = brands[1]; // NSK
-
-  const products = [
-    {
-      name: "Ổ Bi Cầu 6205-2RS SKF",
-      slug: "o-bi-cau-6205-2rs-skf",
-      sku: "SKF-6205-2RS",
-      description:
-        "Ổ bi cầu 6205-2RS chính hãng SKF - Thụy Điển. Phù hợp cho máy bơm, motor điện, hộp số tốc độ cao. Chắn cao su 2 phía, bôi trơn sẵn với mỡ.",
-      price: 85000,
-      priceOnRequest: false,
-      isFeatured: true,
-      categoryId: catOBiCau.id,
-      brandId: skfBrand.id,
-      attrs: [
-        { attrId: attrInnerD.id, value: "25" },
-        { attrId: attrOuterD.id, value: "52" },
-        { attrId: attrWidth.id, value: "15" },
-        { attrId: attrShield.id, value: "2RS (Cao su 2 phía)" },
-        { attrId: attrBrand.id, value: "SKF" },
-        { attrId: attrMaterial.id, value: "Thép chịu lực" },
-        { attrId: attrOrigin.id, value: "Thụy Điển" },
-      ],
-    },
-    {
-      name: "Ổ Bi Cầu 6205-ZZ SKF",
-      slug: "o-bi-cau-6205-zz-skf",
-      sku: "SKF-6205-ZZ",
-      description:
-        "Ổ bi cầu 6205-ZZ chính hãng SKF. Chắn thép 2 phía, phù hợp môi trường bụi bẩn, nhiệt độ cao.",
-      price: 82000,
-      priceOnRequest: false,
-      isFeatured: false,
-      categoryId: catOBiCau.id,
-      brandId: skfBrand.id,
-      attrs: [
-        { attrId: attrInnerD.id, value: "25" },
-        { attrId: attrOuterD.id, value: "52" },
-        { attrId: attrWidth.id, value: "15" },
-        { attrId: attrShield.id, value: "ZZ (Chắn thép 2 phía)" },
-        { attrId: attrBrand.id, value: "SKF" },
-        { attrId: attrMaterial.id, value: "Thép chịu lực" },
-        { attrId: attrOrigin.id, value: "Thụy Điển" },
-      ],
-    },
-    {
-      name: "Ổ Bi Cầu 6305-2RS NSK",
-      slug: "o-bi-cau-6305-2rs-nsk",
-      sku: "NSK-6305-2RS",
-      description:
-        "Ổ bi cầu 6305-2RS NSK chính hãng Nhật Bản. Tải trọng cao hơn 6205 cùng đường kính trong.",
-      price: 95000,
-      priceOnRequest: false,
-      isFeatured: true,
-      categoryId: catOBiCau.id,
-      brandId: nskBrand.id,
-      attrs: [
-        { attrId: attrInnerD.id, value: "25" },
-        { attrId: attrOuterD.id, value: "62" },
-        { attrId: attrWidth.id, value: "17" },
-        { attrId: attrShield.id, value: "2RS (Cao su 2 phía)" },
-        { attrId: attrBrand.id, value: "NSK" },
-        { attrId: attrMaterial.id, value: "Thép chịu lực" },
-        { attrId: attrOrigin.id, value: "Nhật Bản" },
-      ],
-    },
-    {
-      name: "Ổ Bi Cầu 6208-2RS SKF",
-      slug: "o-bi-cau-6208-2rs-skf",
-      sku: "SKF-6208-2RS",
-      description:
-        "Ổ bi cầu 6208-2RS SKF đường kính trong 40mm. Dùng phổ biến trong công nghiệp dệt, thực phẩm.",
-      price: 145000,
-      priceOnRequest: false,
-      isFeatured: true,
-      categoryId: catOBiCau.id,
-      brandId: skfBrand.id,
-      attrs: [
-        { attrId: attrInnerD.id, value: "40" },
-        { attrId: attrOuterD.id, value: "80" },
-        { attrId: attrWidth.id, value: "18" },
-        { attrId: attrShield.id, value: "2RS (Cao su 2 phía)" },
-        { attrId: attrBrand.id, value: "SKF" },
-        { attrId: attrMaterial.id, value: "Thép chịu lực" },
-        { attrId: attrOrigin.id, value: "Thụy Điển" },
-      ],
-    },
-    {
-      name: "Ổ Bi Cầu 6010-Open NSK",
-      slug: "o-bi-cau-6010-open-nsk",
-      sku: "NSK-6010-OPEN",
-      description:
-        "Ổ bi cầu 6010 không chắn NSK. Phù hợp cho ứng dụng cần thêm mỡ định kỳ.",
-      price: 0,
-      priceOnRequest: true,
-      isFeatured: false,
-      categoryId: catOBiCau.id,
-      brandId: nskBrand.id,
-      attrs: [
-        { attrId: attrInnerD.id, value: "50" },
-        { attrId: attrOuterD.id, value: "80" },
-        { attrId: attrWidth.id, value: "16" },
-        { attrId: attrShield.id, value: "Open (Không chắn)" },
-        { attrId: attrBrand.id, value: "NSK" },
-        { attrId: attrMaterial.id, value: "Thép chịu lực" },
-        { attrId: attrOrigin.id, value: "Nhật Bản" },
-      ],
-    },
-  ];
-
-  for (const p of products) {
-    const { attrs, ...productData } = p;
-    const product = await prisma.product.upsert({
-      where: { sku: productData.sku },
-      create: {
-        ...productData,
-        price: productData.priceOnRequest ? null : productData.price,
-      },
-      update: {},
-    });
-
-    for (const attr of attrs) {
-      await prisma.productAttributeValue.upsert({
-        where: { productId_attributeId: { productId: product.id, attributeId: attr.attrId } },
-        create: { productId: product.id, attributeId: attr.attrId, value: attr.value },
-        update: { value: attr.value },
-      });
-    }
-  }
-
-  console.log("✅ Products created:", products.length);
-
-  // ============================================================
-  // 7. BANNERS
+  // 2. BANNERS & SITE CONTENT
   // ============================================================
   await prisma.banner.upsert({
     where: { id: 1 },
@@ -409,9 +262,6 @@ async function main() {
     update: {},
   });
 
-  // ============================================================
-  // 8. SITE CONTENT
-  // ============================================================
   const contents = [
     { key: "about_short", value: "Cơ Khí Khải Hào - hơn 10 năm kinh nghiệm trong lĩnh vực cung cấp phụ tùng cơ khí và gia công chính xác.", label: "Giới thiệu ngắn (trang chủ)" },
     { key: "about_full", value: "Với hơn 10 năm hoạt động trong ngành cơ khí...", label: "Giới thiệu đầy đủ", type: "html" },
@@ -426,8 +276,19 @@ async function main() {
       update: {},
     });
   }
+  console.log("✅ Banners & Site content seeded");
 
-  console.log("✅ Site content seeded");
+  // ============================================================
+  // 3. CATALOG SEED (ONLY IF EMPTY)
+  // ============================================================
+  const productCount = await prisma.product.count();
+  if (productCount < 100) {
+    console.log(`Chỉ có ${productCount} sản phẩm trong DB. Bắt đầu seed catalog từ CSV...`);
+    await seedCatalogFromCSV();
+  } else {
+    console.log(`✅ Bỏ qua import CSV. Đã có sẵn ${productCount} sản phẩm.`);
+  }
+
   console.log("\n🎉 Seed hoàn tất!");
   console.log(`\n📧 Admin login: ${adminEmail}`);
   console.log(`🔑 Password: ${process.env.ADMIN_PASSWORD || "Admin@123456"}`);
