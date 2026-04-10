@@ -8,38 +8,97 @@ export const metadata = {
   title: "Quản lý Sản phẩm | Admin",
 };
 
-export default async function ProductPage() {
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: true,
-      brand: true,
-      images: {
-        where: { isPrimary: true },
-        take: 1,
-      },
-      _count: {
-        select: { quoteItems: true }
-      }
-    },
-  });
+const PAGE_SIZE = 30;
 
+interface SearchParams {
+  page?: string;
+  search?: string;
+  category?: string;
+}
+
+export default async function ProductPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+
+  const page = Math.max(1, parseInt(params.page || "1", 10));
+  const search = params.search?.trim() || "";
+  const categoryId = params.category ? parseInt(params.category, 10) : undefined;
+
+  const where = {
+    ...(search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { sku: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+    ...(categoryId ? { categoryId } : {}),
+  };
+
+  const [total, products] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        category: true,
+        brand: true,
+        images: {
+          where: { isPrimary: true },
+          take: 1,
+        },
+        _count: {
+          select: { quoteItems: true },
+        },
+      },
+    }),
+  ]);
+
+  // Get cover image for products without primary image
   const productsWithFallbackImage = await Promise.all(
     products.map(async (p) => {
       let coverImage = p.images[0]?.url;
       if (!coverImage) {
         const fallback = await prisma.productImage.findFirst({
           where: { productId: p.id },
-          orderBy: { sortOrder: "asc" }
+          orderBy: { sortOrder: "asc" },
         });
         coverImage = fallback?.url || "";
       }
       return {
-        ...p,
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        sku: p.sku,
+        // Convert Decimal to plain number to fix "Only plain objects can be passed" error
+        price: p.price ? Number(p.price) : null,
+        priceOnRequest: p.priceOnRequest,
+        isFeatured: p.isFeatured,
+        isActive: p.isActive,
+        categoryId: p.categoryId,
+        brandId: p.brandId,
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt.toISOString(),
+        category: p.category,
+        brand: p.brand,
+        _count: p._count,
         coverImage,
       };
     })
   );
+
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, parentId: true },
+  });
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="p-6">
@@ -66,7 +125,15 @@ export default async function ProductPage() {
         </div>
       </div>
 
-      <ProductClientRenderer initialProducts={productsWithFallbackImage} />
+      <ProductClientRenderer
+        initialProducts={productsWithFallbackImage}
+        categories={categories}
+        total={total}
+        page={page}
+        totalPages={totalPages}
+        search={search}
+        categoryId={categoryId}
+      />
     </div>
   );
 }

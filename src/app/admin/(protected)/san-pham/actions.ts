@@ -158,3 +158,20 @@ export async function deleteProduct(id: number) {
     return { error: "Không thể xóa sản phẩm này (Có thể đã được dùng trong Báo giá)." };
   }
 }
+
+export async function quickUpdateProduct(
+  id: number,
+  data: { isFeatured?: boolean; isActive?: boolean; price?: number | null; priceOnRequest?: boolean }
+) {
+  try {
+    await prisma.product.update({
+      where: { id },
+      data,
+    });
+    revalidatePath("/admin/san-pham");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error(error);
+    return { error: "Không thể cập nhật sản phẩm." };
+  }
+}
