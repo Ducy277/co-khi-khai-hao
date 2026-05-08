@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import Image from "next/image";
 import { Prisma } from "@prisma/client";
 import { notFound } from "next/navigation";
 import { Settings, ChevronRight } from "lucide-react";
@@ -244,9 +243,10 @@ export default async function CategoryProductsPage({
     );
   }
 
-  const [products, totalCount] = await Promise.all([
+  const [products, groupedNames] = await Promise.all([
     prisma.product.findMany({
       where: whereClause,
+      distinct: ['name'],
       take: limit,
       skip,
       include: {
@@ -256,10 +256,15 @@ export default async function CategoryProductsPage({
         },
         category: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ name: "asc" }, { createdAt: "desc" }],
     }),
-    prisma.product.count({ where: whereClause }),
+    prisma.product.groupBy({
+      by: ['name'],
+      where: whereClause,
+    }),
   ]);
+
+  const totalCount = groupedNames.length;
 
   const totalPages = Math.ceil(totalCount / limit);
 
@@ -292,7 +297,7 @@ export default async function CategoryProductsPage({
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           <MobileFilterWrapper>
             <ProductFilterSidebar
               basePath={`/san-pham/${currentCategory.slug}`}

@@ -367,7 +367,7 @@ export default function ProductFilterSidebar({
   return (
     <form
       ref={formRef}
-      className="bg-white lg:rounded-xl lg:shadow-sm lg:border lg:border-slate-200 lg:p-4 p-5 lg:sticky lg:top-24 w-full h-full lg:h-[calc(100vh-7.25rem)] lg:max-h-[820px] flex flex-col flex-1 min-h-0"
+      className="bg-white lg:rounded-xl lg:shadow-sm lg:border lg:border-slate-200 lg:p-4 p-5 w-full h-full flex flex-col flex-1 min-h-0"
       method="GET"
       onSubmit={(e) => e.preventDefault()}
     >

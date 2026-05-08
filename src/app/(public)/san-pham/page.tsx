@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import Image from "next/image";
 import { Prisma } from "@prisma/client";
 import { Settings, ChevronRight } from "lucide-react";
 
@@ -35,30 +34,6 @@ function toNumber(value: string | string[] | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function buildQueryString(
-  params: Record<string, string | string[] | undefined>,
-  overrides: Record<string, string | null>,
-) {
-  const q = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined) continue;
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        q.append(key, item);
-      }
-      continue;
-    }
-    q.set(key, value);
-  }
-
-  for (const [key, value] of Object.entries(overrides)) {
-    q.delete(key);
-    if (value) q.set(key, value);
-  }
-
-  return q.toString();
-}
 
 
 
@@ -151,9 +126,10 @@ export default async function ProductsPage({
     ...(andClauses.length > 0 ? { AND: andClauses } : {}),
   };
 
-  const [products, totalCount] = await Promise.all([
+  const [products, groupedNames] = await Promise.all([
     prisma.product.findMany({
       where: whereClause,
+      distinct: ['name'],
       take: limit,
       skip,
       include: {
@@ -163,18 +139,18 @@ export default async function ProductsPage({
         },
         category: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ name: "asc" }, { createdAt: "desc" }],
     }),
-    prisma.product.count({ where: whereClause }),
+    prisma.product.groupBy({
+      by: ['name'],
+      where: whereClause,
+    }),
   ]);
+
+  const totalCount = groupedNames.length;
 
   const totalPages = Math.ceil(totalCount / limit);
 
-  const formatPrice = (price: unknown) => {
-    if (!price) return "—";
-    const num = Number(price);
-    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
-  };
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
@@ -193,7 +169,7 @@ export default async function ProductsPage({
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
           {/* Sidebar */}
           <MobileFilterWrapper>

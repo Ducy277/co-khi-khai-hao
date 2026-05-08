@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SiteContent } from "@prisma/client";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -350,7 +350,10 @@ export default function ContentDialog({ open, onOpenChange, content }: ContentDi
     defaultValues: { key: "", value: "", type: "text", label: "" },
   });
 
-  const contentType = form.watch("type");
+  const contentType = useWatch({
+    control: form.control,
+    name: "type",
+  });
 
   useEffect(() => {
     if (!open) return;

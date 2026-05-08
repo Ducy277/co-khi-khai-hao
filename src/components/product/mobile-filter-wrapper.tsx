@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Filter, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export default function MobileFilterWrapper({
   children,
@@ -38,9 +37,9 @@ export default function MobileFilterWrapper({
         </div>
       </div>
 
-      {/* Desktop View: Hiển thị bộ lọc cố định bên trái (20% width) */}
-      <div className="hidden lg:block w-[20%] shrink-0 border-r border-slate-100 pr-6">
-        <div className="w-full sticky top-24 h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
+      {/* Desktop View: Hiển thị bộ lọc cố định bên trái (25% width) */}
+      <div className="hidden lg:block w-[25%] xl:w-[22%] shrink-0 pr-6">
+        <div className="w-full sticky top-[88px] h-[calc(100vh-88px-24px)]">
           {children}
         </div>
       </div>

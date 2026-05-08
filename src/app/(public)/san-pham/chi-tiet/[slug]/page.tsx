@@ -117,6 +117,13 @@ export default async function ProductDetailPage({ params }: Props) {
     }))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
+  // Lấy các sản phẩm cùng tên nhưng khác hãng
+  const sameNameProducts = await prisma.product.findMany({
+    where: { name: product.name, isActive: true },
+    include: { brand: true },
+    orderBy: { price: "asc" }
+  });
+
   // Lấy dữ liệu sản phẩm tương tự (cùng danh mục)
   const relatedProducts = await prisma.product.findMany({
     where: {
@@ -132,7 +139,7 @@ export default async function ProductDetailPage({ params }: Props) {
   });
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20 pt-6">
+    <div className="bg-slate-50 min-h-screen pb-32 lg:pb-20 pt-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -163,112 +170,140 @@ export default async function ProductDetailPage({ params }: Props) {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="bg-white border border-slate-200 shadow-sm mb-12 flex flex-col lg:flex-row">
-          {/* Cột trái: Gallery Dạng Client Slide */}
-          <div className="w-full lg:w-1/2 p-6 lg:border-r border-slate-200 bg-white relative">
-             <ProductGallery images={product.images} productName={product.name} />
+        <div className="bg-white border border-slate-200 shadow-sm mb-12 flex flex-col lg:flex-row lg:h-[500px]">
+
+          <div className="w-full lg:w-[42%] lg:border-r border-slate-200 bg-slate-50 flex items-center justify-center p-4 shrink-0">
+            <ProductGallery images={product.images} productName={product.name} />
           </div>
 
-          {/* Cột phải: Thông tin SP (Header, Giá, Specs table, Action) */}
-          <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col bg-white">
-            <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="w-full lg:w-[58%] flex flex-col bg-white overflow-y-auto">
+            <div className="sticky top-0 z-10 bg-white flex items-center justify-between border-b border-slate-100 px-6 py-3">
               <span className="text-white font-bold text-[11px] px-3 py-1 bg-slate-800 tracking-wider">
                 {product.category.name}
               </span>
               <span className="text-primary font-mono font-medium text-xs border border-primary px-2 py-1 bg-blue-50">SKU: {product.sku}</span>
             </div>
-            
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight leading-[1.2] mb-6">
-              {product.name}
-            </h1>
 
-            <div className="flex items-center gap-6 mb-8 text-xs font-semibold tracking-wide text-slate-600 border-l-4 border-primary pl-4">
-              <div className="flex items-center">
-                <span className="mr-2">THƯƠNG HIỆU:</span>
-                <span className="text-primary">{product.brand?.name || "ĐANG CẬP NHẬT"}</span>
-              </div>
-              <div className="flex items-center text-green-700">
-                <CheckCircle2 className="w-4 h-4 mr-1.5" />
-                <span>CHÍNH HÃNG</span>
-              </div>
-            </div>
+            <div className="flex flex-col flex-1 p-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-[1.2] mb-4">
+                {product.name}
+              </h1>
 
-            {/* Bảng Giá */}
-            <div className="bg-slate-50 p-6 border border-slate-200 mb-8 relative">
-              <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 tracking-wider border-b border-l border-primary">
-                {product.priceOnRequest ? "BÁO GIÁ" : "GIÁ BÁN"}
-              </div>
-              {product.priceOnRequest ? (
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[11px] mb-1 font-semibold tracking-wider uppercase">Tình trạng Giá</span>
-                  <div className="text-3xl font-bold text-red-600 tracking-tight">LIÊN HỆ BÁO GIÁ</div>
-                  <p className="text-slate-500 text-xs mt-2 font-medium">Vui lòng liên hệ trực tiếp cho tư vấn viên để lấy giá chiết khấu ưu đãi nhất.</p>
+              {/* Chọn thương hiệu */}
+              {sameNameProducts.length > 1 ? (
+                <div className="mb-5">
+                  <div className="text-xs font-semibold tracking-wide text-slate-600 mb-2 border-l-4 border-primary pl-4 flex items-center">
+                    <span className="mr-2">LỰA CHỌN THƯƠNG HIỆU:</span>
+                    <div className="flex items-center text-green-700 ml-auto">
+                      <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                      <span>CHÍNH HÃNG</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sameNameProducts.map((snp) => (
+                      <Link key={snp.id} href={`/san-pham/chi-tiet/${snp.slug}`} replace>
+                        <div className={`px-3 py-2 border rounded-md cursor-pointer transition-all flex flex-col items-center justify-center min-w-[76px] text-sm ${
+                          snp.id === product.id
+                            ? 'border-primary bg-blue-50 text-primary font-bold'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-slate-50'
+                        }`}>
+                          <span>{snp.brand?.name || "Không rõ"}</span>
+                          {snp.priceOnRequest ? (
+                            <span className={`text-[10px] mt-0.5 ${snp.id === product.id ? 'text-primary' : 'text-slate-500'}`}>Liên hệ</span>
+                          ) : (
+                            <span className={`text-[10px] mt-0.5 ${snp.id === product.id ? 'text-primary' : 'text-slate-500'}`}>{formatPrice(snp.price)}</span>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[11px] mb-1 font-semibold tracking-wider uppercase">Giá bán lẻ (Cơ bản)</span>
-                  <div className="text-4xl font-bold text-primary tracking-tight">{formatPrice(product.price)}</div>
+                <div className="flex items-center gap-5 mb-5 text-xs font-semibold tracking-wide text-slate-600 border-l-4 border-primary pl-4">
+                  <div className="flex items-center">
+                    <span className="mr-2">THƯƠNG HIỆU:</span>
+                    <span className="text-primary">{product.brand?.name || "ĐANG CẬP NHẬT"}</span>
+                  </div>
+                  <div className="flex items-center text-green-700">
+                    <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                    <span>CHÍNH HÃNG</span>
+                  </div>
                 </div>
               )}
-            </div>
 
-            {/* Bảng thông số kỹ thuật EAV Loop rút gọn */}
-            {specifications.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center uppercase tracking-wide pb-2 border-b border-slate-200">
-                  <FileText className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
-                  THÔNG SỐ KỸ THUẬT CHÍNH
-                </h3>
-                <div className="border border-slate-200 bg-white">
-                  <table className="w-full text-sm text-left">
-                    <tbody>
-                      {specifications.slice(0, 5).map((spec, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 last:border-b-0">
-                          <th className="py-2.5 px-4 bg-slate-50 text-slate-600 font-medium w-1/3 border-r border-slate-100 capitalize">{spec.name}</th>
-                          <td className="py-2.5 px-4 text-slate-900 font-medium">{spec.value || "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              {/* Giá */}
+              <div className="bg-slate-50 px-5 py-4 border border-slate-200 mb-5 relative">
+                <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 tracking-wider">
+                  {product.priceOnRequest ? "BÁO GIÁ" : "GIÁ BÁN"}
                 </div>
-                {specifications.length > 5 && (
-                  <p className="text-primary text-[11px] font-bold mt-3 cursor-pointer hover:underline text-right">
-                    Xem toàn bộ Data Sheet ↓
-                  </p>
+                {product.priceOnRequest ? (
+                  <div>
+                    <div className="text-2xl font-bold text-red-600 tracking-tight">LIÊN HỆ BÁO GIÁ</div>
+                    <p className="text-slate-500 text-xs mt-1">Vui lòng liên hệ để được tư vấn giá tốt nhất.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-slate-500 text-[11px] font-semibold tracking-wider uppercase">Giá bán lẻ</span>
+                    <div className="text-3xl font-bold text-primary tracking-tight mt-0.5">{formatPrice(product.price)}</div>
+                  </div>
                 )}
               </div>
-            )}
 
-            {/* Nút hành động */}
-            <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <AddToQuoteButton
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  slug: product.slug,
-                  sku: product.sku,
-                  price: product.price ? Number(product.price) : null,
-                  priceOnRequest: product.priceOnRequest,
-                  imageUrl: product.images[0]?.url,
-                }}
-              />
-              <a href="https://zalo.me/0901234567" target="_blank" rel="noopener noreferrer" className="col-span-1 sm:col-span-1 lg:col-span-1 block w-full">
-                <Button size="lg" className="bg-[#0068FF] hover:bg-blue-600 text-white w-full h-12 font-semibold border border-[#0068FF] shadow-sm text-xs rounded-none transition-all">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Zalo
-                </Button>
-              </a>
-              <a href="tel:0901234567" className="col-span-1 sm:col-span-2 lg:col-span-1 block w-full">
-                <Button size="lg" variant="outline" className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full h-12 font-semibold border-2 shadow-sm rounded-none text-xs transition-all">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Hotline
-                </Button>
-              </a>
-            </div>
-            <div className="mt-6 flex flex-col gap-2 border-t border-slate-200 pt-4">
-              <p className="text-xs text-slate-500 font-medium flex items-center justify-center">
-                <Award className="w-4 h-4 mr-1 text-primary" /> Bảo hành chính hãng 12 tháng.
-              </p>
+              {/* Thông số kỹ thuật rút gọn */}
+              {specifications.length > 0 && (
+                <div className="mb-5">
+                  <h3 className="text-xs font-bold text-slate-700 mb-2 flex items-center uppercase tracking-wide pb-1.5 border-b border-slate-200">
+                    <FileText className="w-3.5 h-3.5 text-primary mr-1.5" strokeWidth={2} />
+                    THÔNG SỐ KỸ THUẬT
+                  </h3>
+                  <div className="border border-slate-200">
+                    <table className="w-full text-xs">
+                      <tbody>
+                        {specifications.slice(0, 4).map((spec, idx) => (
+                          <tr key={idx} className="border-b border-slate-100 last:border-b-0">
+                            <th className="py-1.5 px-3 bg-slate-50 text-slate-600 font-medium w-2/5 border-r border-slate-100">{spec.name}</th>
+                            <td className="py-1.5 px-3 text-slate-900">{spec.value || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {specifications.length > 4 && (
+                    <p className="text-primary text-[10px] font-bold mt-1 cursor-pointer hover:underline text-right">Xem toàn bộ ↓</p>
+                  )}
+                </div>
+              )}
+
+              {/* Nút hành động */}
+              <div className="mt-auto grid grid-cols-3 gap-2.5">
+                <AddToQuoteButton
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    sku: product.sku,
+                    price: product.price ? Number(product.price) : null,
+                    priceOnRequest: product.priceOnRequest,
+                    imageUrl: product.images[0]?.url,
+                  }}
+                />
+                <a href="https://zalo.me/0901234567" target="_blank" rel="noopener noreferrer" className="block w-full">
+                  <Button size="lg" className="bg-[#0068FF] hover:bg-blue-700 text-white w-full h-12 font-semibold text-xs rounded-none transition-all">
+                    <MessageSquare className="w-4 h-4 mr-2" /> Zalo
+                  </Button>
+                </a>
+                <a href="tel:0901234567" className="block w-full">
+                  <Button size="lg" variant="outline" className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full h-12 font-semibold border-2 rounded-none text-xs transition-all">
+                    <Phone className="w-4 h-4 mr-2" /> Hotline
+                  </Button>
+                </a>
+              </div>
+
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                <p className="text-[11px] text-slate-400 font-medium flex items-center justify-center">
+                  <Award className="w-3.5 h-3.5 mr-1 text-primary" /> Bảo hành chính hãng 12 tháng.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -378,6 +413,29 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
         )}
 
+      </div>
+
+      {/* Mobile Fixed Action Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 z-50 flex gap-2 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] pb-safe">
+        <div className="flex-1">
+          <AddToQuoteButton
+            product={{
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              sku: product.sku,
+              price: product.price ? Number(product.price) : null,
+              priceOnRequest: product.priceOnRequest,
+              imageUrl: product.images[0]?.url,
+            }}
+          />
+        </div>
+        <a href="https://zalo.me/0901234567" target="_blank" rel="noopener noreferrer" className="w-14 h-14 flex items-center justify-center bg-[#0068FF] text-white rounded-md shrink-0 shadow-sm border border-[#0068FF]">
+          <MessageSquare className="w-6 h-6" />
+        </a>
+        <a href="tel:0901234567" className="w-14 h-14 flex items-center justify-center border-2 border-emerald-600 text-emerald-700 bg-emerald-50 rounded-md shrink-0 shadow-sm">
+          <Phone className="w-6 h-6" />
+        </a>
       </div>
     </div>
   );

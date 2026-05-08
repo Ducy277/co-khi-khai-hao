@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 
 export default function ZaloButton() {
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[110] flex flex-col items-center gap-2">
+    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-110 flex flex-col items-center gap-2">
       <a 
         href="https://zalo.me/0901234567" 
         target="_blank" 
@@ -14,7 +13,7 @@ export default function ZaloButton() {
         <div className="absolute inset-0 rounded-full bg-[#0068FF] opacity-30 animate-ping"></div>
         <div className="absolute w-[44px] h-[44px] bg-white rounded-full flex items-center justify-center">
           {/* Zalo Icon Simple Format */}
-          <span className="text-[#0068FF] font-bold text-xl tracking-tighter ml-[1px]">Zalo</span>
+          <span className="text-[#0068FF] font-bold text-xl tracking-tighter ml-px">Zalo</span>
         </div>
 
         {/* Tooltip */}

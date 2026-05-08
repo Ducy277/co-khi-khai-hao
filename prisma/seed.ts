@@ -202,10 +202,18 @@ async function seedCatalogFromCSV() {
     }
 
     const slug = slugify(name);
+    
+    // Xóa tên hãng ở cuối tên sản phẩm (nếu có) để chuẩn hóa tên
+    let finalName = name;
+    const brandName = row["Xuất xứ"]?.trim();
+    if (brandName && finalName.endsWith(brandName)) {
+      finalName = finalName.substring(0, finalName.length - brandName.length).trim();
+    }
+
     try {
       await prisma.product.create({
         data: {
-          name: name,
+          name: finalName,
           slug: `${slug}-${sku}`,
           sku: sku,
           price: priceNum,
@@ -216,8 +224,8 @@ async function seedCatalogFromCSV() {
         },
       });
       importedCount++;
-    } catch (e: any) {
-      console.error(`Lỗi import mục SKU ${sku}: ${e.message}`);
+    } catch (e: unknown) {
+      console.error(`Lỗi import mục SKU ${sku}: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
 
