@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const optionSchema = z.object({
   id: z.number().optional(),
@@ -12,6 +14,9 @@ const optionSchema = z.object({
 });
 
 export async function createOption(data: z.infer<typeof optionSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = optionSchema.safeParse(data);
   if (!result.success) return { error: result.error.issues[0]?.message };
 
@@ -38,6 +43,9 @@ export async function createOption(data: z.infer<typeof optionSchema>) {
 }
 
 export async function updateOption(data: z.infer<typeof optionSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = optionSchema.safeParse(data);
   if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID tuỳ chọn." };
@@ -69,6 +77,9 @@ export async function updateOption(data: z.infer<typeof optionSchema>) {
 }
 
 export async function deleteOption(id: number, attributeId: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     await prisma.attributeOption.delete({
       where: { id },

@@ -51,6 +51,7 @@ services:
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
       NEXT_PUBLIC_PHONE: ${NEXT_PUBLIC_PHONE}
       NEXT_PUBLIC_ZALO: ${NEXT_PUBLIC_ZALO}
       NEXT_PUBLIC_EMAIL: ${NEXT_PUBLIC_EMAIL}
@@ -69,6 +70,12 @@ services:
         condition: service_completed_successfully
     networks:
       - ckkh_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # ── Nginx Reverse Proxy ────────────────────────────────────────────────────
   nginx:

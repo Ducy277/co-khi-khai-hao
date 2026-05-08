@@ -13,18 +13,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import QuoteCartBadge from "@/components/quote/quote-cart-badge";
 
-type HeaderCategory = {
-  id: number;
-  name: string;
-  slug: string;
-  parentId: number | null;
-};
-
-type HeaderClientProps = {
-  categories: HeaderCategory[];
-};
-
-export default function HeaderClient({ }: HeaderClientProps) {
+export default function HeaderClient() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
@@ -155,11 +144,11 @@ export default function HeaderClient({ }: HeaderClientProps) {
               </li>
             ))}
             <li className="px-6 py-5 bg-blue-50 mt-2 border-t border-blue-100">
-              <a href="tel:0901234567" className="flex items-center gap-3 text-primary font-bold">
+              <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0901234567"}`} className="flex items-center gap-3 text-primary font-bold">
                 <div className="w-8 h-8 bg-primary text-white flex flex-col items-center justify-center shadow-sm">
                   <Phone className="w-4 h-4 fill-current" />
                 </div>
-                Hotline: 090 123 4567
+                Hotline: {process.env.NEXT_PUBLIC_PHONE || "090 123 4567"}
               </a>
             </li>
           </ul>

@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -11,7 +12,14 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
+        const ip = (req?.headers?.["x-forwarded-for"] || req?.headers?.["x-real-ip"] || "unknown") as string;
+        const limitResult = rateLimit(ip, 10, 5 * 60 * 1000); // 10 attempts per 5 mins
+        
+        if (!limitResult.success) {
+          throw new Error("Quá nhiều lần thử. Vui lòng thử lại sau 5 phút.");
+        }
+
         if (!credentials?.email || !credentials?.password) {
           return null;
         }

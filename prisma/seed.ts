@@ -289,12 +289,13 @@ async function main() {
   // ============================================================
   // 3. CATALOG SEED (ONLY IF EMPTY)
   // ============================================================
+  const skipSeedCSV = process.env.SKIP_SEED_CSV === "true";
   const productCount = await prisma.product.count();
-  if (productCount < 100) {
-    console.log(`Chỉ có ${productCount} sản phẩm trong DB. Bắt đầu seed catalog từ CSV...`);
+  if (!skipSeedCSV && productCount === 0) {
+    console.log(`Chưa có sản phẩm nào trong DB. Bắt đầu seed catalog từ CSV...`);
     await seedCatalogFromCSV();
   } else {
-    console.log(`✅ Bỏ qua import CSV. Đã có sẵn ${productCount} sản phẩm.`);
+    console.log(`✅ Bỏ qua import CSV (SKIP_SEED_CSV=${skipSeedCSV}, DB có ${productCount} sản phẩm).`);
   }
 
   console.log("\n🎉 Seed hoàn tất!");

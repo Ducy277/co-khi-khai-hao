@@ -5,7 +5,7 @@ export default function ZaloButton() {
   return (
     <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-110 flex flex-col items-center gap-2">
       <a 
-        href="https://zalo.me/0901234567" 
+        href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO || "0901234567"}`} 
         target="_blank" 
         rel="noopener noreferrer"
         className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#0068FF] shadow-lg shadow-blue-500/30 hover:scale-105 transition-transform group"

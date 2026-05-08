@@ -22,9 +22,9 @@ export default async function ContactPage() {
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-xl font-semibold text-slate-800 mb-4">Thông tin liên hệ</h2>
             <div className="space-y-3 text-slate-600">
-              <p><strong>Hotline:</strong> 090 123 4567</p>
-              <p><strong>Email:</strong> admin@ckkh.vn</p>
-              <p><strong>Zalo:</strong> 090 123 4567</p>
+              <p><strong>Hotline:</strong> {process.env.NEXT_PUBLIC_PHONE || "090 123 4567"}</p>
+              <p><strong>Email:</strong> {process.env.NEXT_PUBLIC_EMAIL || "admin@ckkh.vn"}</p>
+              <p><strong>Zalo:</strong> {process.env.NEXT_PUBLIC_ZALO || "090 123 4567"}</p>
               <p><strong>Giờ làm việc:</strong> 08:00 - 17:30 (T2 - T7)</p>
             </div>
           </div>

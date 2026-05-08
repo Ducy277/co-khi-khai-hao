@@ -35,6 +35,7 @@ import { createSiteContent, updateSiteContent } from "../actions";
 import { toast } from "sonner";
 import { ImageIcon, Upload, X, Loader2, Code } from "lucide-react";
 import Image from "next/image";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const formSchema = z.object({
   key: z.string().min(1, "Key không được để trống"),
@@ -330,7 +331,7 @@ function HtmlEditor({
           </summary>
           <div
             className="mt-2 p-3 border border-slate-200 rounded-md bg-white prose prose-sm max-w-none text-slate-700 text-sm leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: value }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
           />
         </details>
       )}

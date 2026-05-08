@@ -5,6 +5,7 @@ import {
   sendQuoteNotificationToAdmin,
   sendQuoteConfirmationToCustomer,
 } from "@/lib/mailer";
+import { rateLimit } from "@/lib/rate-limit";
 
 const quotePayloadSchema = z.object({
   customerName: z.string().min(1, "Vui lòng nhập họ tên"),
@@ -29,6 +30,15 @@ const quotePayloadSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+    const limitResult = rateLimit(ip, 5, 60 * 1000); // 5 requests per minute per IP
+
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { error: "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau 1 phút." },
+        { status: 429 }
+      );
+    }
     const body = await request.json();
     const parsed = quotePayloadSchema.safeParse(body);
 

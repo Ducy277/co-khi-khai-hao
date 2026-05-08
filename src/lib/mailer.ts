@@ -1,5 +1,15 @@
 import nodemailer from "nodemailer";
 
+function escapeHtml(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /**
  * Nodemailer transporter dùng Gmail SMTP với App Password.
  * Để đổi tài khoản: chỉ cần cập nhật SMTP_USER và SMTP_PASS trong .env
@@ -41,8 +51,8 @@ export async function sendQuoteNotificationToAdmin(data: QuoteEmailData) {
       (item, i) => `
       <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
         <td style="padding:8px 12px;border:1px solid #e2e8f0;">${i + 1}</td>
-        <td style="padding:8px 12px;border:1px solid #e2e8f0;">${item.productName}</td>
-        <td style="padding:8px 12px;border:1px solid #e2e8f0;font-family:monospace;">${item.sku}</td>
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;">${escapeHtml(item.productName)}</td>
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;font-family:monospace;">${escapeHtml(item.sku)}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:center;">${item.quantity}</td>
       </tr>`
     )
@@ -71,15 +81,15 @@ export async function sendQuoteNotificationToAdmin(data: QuoteEmailData) {
       <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
         <tr>
           <td style="padding:6px 0;color:#64748b;width:140px;">Họ tên:</td>
-          <td style="padding:6px 0;font-weight:bold;color:#0f172a;">${data.customerName}</td>
+          <td style="padding:6px 0;font-weight:bold;color:#0f172a;">${escapeHtml(data.customerName)}</td>
         </tr>
-        ${data.company ? `<tr><td style="padding:6px 0;color:#64748b;">Công ty:</td><td style="padding:6px 0;color:#0f172a;">${data.company}</td></tr>` : ""}
+        ${data.company ? `<tr><td style="padding:6px 0;color:#64748b;">Công ty:</td><td style="padding:6px 0;color:#0f172a;">${escapeHtml(data.company)}</td></tr>` : ""}
         <tr>
           <td style="padding:6px 0;color:#64748b;">Số điện thoại:</td>
-          <td style="padding:6px 0;color:#0f172a;"><a href="tel:${data.phone}" style="color:#2563eb;">${data.phone}</a></td>
+          <td style="padding:6px 0;color:#0f172a;"><a href="tel:${escapeHtml(data.phone)}" style="color:#2563eb;">${escapeHtml(data.phone)}</a></td>
         </tr>
-        ${data.email ? `<tr><td style="padding:6px 0;color:#64748b;">Email:</td><td style="padding:6px 0;"><a href="mailto:${data.email}" style="color:#2563eb;">${data.email}</a></td></tr>` : ""}
-        ${data.note ? `<tr><td style="padding:6px 0;color:#64748b;vertical-align:top;">Ghi chú:</td><td style="padding:6px 0;color:#0f172a;">${data.note}</td></tr>` : ""}
+        ${data.email ? `<tr><td style="padding:6px 0;color:#64748b;">Email:</td><td style="padding:6px 0;"><a href="mailto:${escapeHtml(data.email)}" style="color:#2563eb;">${escapeHtml(data.email)}</a></td></tr>` : ""}
+        ${data.note ? `<tr><td style="padding:6px 0;color:#64748b;vertical-align:top;">Ghi chú:</td><td style="padding:6px 0;color:#0f172a;">${escapeHtml(data.note)}</td></tr>` : ""}
       </table>
 
       <!-- Danh sách sản phẩm -->
@@ -137,8 +147,8 @@ export async function sendQuoteConfirmationToCustomer(data: QuoteEmailData) {
     .map(
       (item, i) => `
       <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
-        <td style="padding:8px 12px;border:1px solid #e2e8f0;">${item.productName}</td>
-        <td style="padding:8px 12px;border:1px solid #e2e8f0;font-family:monospace;">${item.sku}</td>
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;">${escapeHtml(item.productName)}</td>
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;font-family:monospace;">${escapeHtml(item.sku)}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:center;">${item.quantity}</td>
       </tr>`
     )
@@ -158,7 +168,7 @@ export async function sendQuoteConfirmationToCustomer(data: QuoteEmailData) {
 
     <div style="padding:24px 28px;">
       <p style="color:#374151;line-height:1.6;">
-        Xin chào <strong>${data.customerName}</strong>,<br>
+        Xin chào <strong>${escapeHtml(data.customerName)}</strong>,<br>
         Yêu cầu báo giá <strong>#${data.quoteId}</strong> của bạn đã được ghi nhận thành công.
         Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất (thường trong vòng <strong>2 giờ làm việc</strong>).
       </p>

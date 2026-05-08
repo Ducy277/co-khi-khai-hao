@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const contentSchema = z.object({
   id: z.number().optional(),
@@ -13,6 +15,9 @@ const contentSchema = z.object({
 });
 
 export async function createSiteContent(data: z.infer<typeof contentSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const parsed = contentSchema.safeParse(data);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ" };
@@ -37,6 +42,9 @@ export async function createSiteContent(data: z.infer<typeof contentSchema>) {
 }
 
 export async function updateSiteContent(data: z.infer<typeof contentSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const parsed = contentSchema.safeParse(data);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ" };
@@ -70,6 +78,9 @@ export async function updateSiteContent(data: z.infer<typeof contentSchema>) {
 }
 
 export async function deleteSiteContent(id: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     await prisma.siteContent.delete({ where: { id } });
     revalidatePath("/gioi-thieu");

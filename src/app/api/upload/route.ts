@@ -22,6 +22,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file received." }, { status: 400 });
     }
 
+    // Validation: Check file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File quá lớn. Tối đa 5MB." }, { status: 400 });
+    }
+
+    // Validation: Check MIME type
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json({ error: "Định dạng file không được hỗ trợ. Chỉ chấp nhận JPG, PNG, WEBP, GIF." }, { status: 400 });
+    }
+
+    // Validation: Check file extension
+    const extension = file.name.split('.').pop()?.toLowerCase() || "";
+    const allowedExtensions = ["jpg", "jpeg", "png", "webp", "gif"];
+    if (!allowedExtensions.includes(extension)) {
+      return NextResponse.json({ error: "Phần mở rộng file không hợp lệ." }, { status: 400 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 

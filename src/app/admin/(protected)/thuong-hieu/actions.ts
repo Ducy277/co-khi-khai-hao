@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const brandSchema = z.object({
   id: z.number().optional(),
@@ -12,6 +14,9 @@ const brandSchema = z.object({
 });
 
 export async function createBrand(data: z.infer<typeof brandSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = brandSchema.safeParse(data);
   if (!result.success) {
     return { error: result.error.issues[0]?.message };
@@ -38,6 +43,9 @@ export async function createBrand(data: z.infer<typeof brandSchema>) {
 }
 
 export async function updateBrand(data: z.infer<typeof brandSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = brandSchema.safeParse(data);
   if (!result.success) {
     return { error: result.error.issues[0]?.message };
@@ -71,6 +79,9 @@ export async function updateBrand(data: z.infer<typeof brandSchema>) {
 }
 
 export async function deleteBrand(id: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     // Check constraints (bỏ check category liên kết tạm thời, hoặc xoá thẳng nếu prisma có set cascade)
     // Tạm thời nếu có products liên kết thì xoá sẽ báo lỗi do khoá ngoại

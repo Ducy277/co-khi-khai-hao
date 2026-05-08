@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const categorySchema = z.object({
   id: z.number().optional(),
@@ -14,6 +16,9 @@ const categorySchema = z.object({
 });
 
 export async function createCategory(data: z.infer<typeof categorySchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = categorySchema.safeParse(data);
   if (!result.success) return { error: result.error.issues[0]?.message };
 
@@ -42,6 +47,9 @@ export async function createCategory(data: z.infer<typeof categorySchema>) {
 }
 
 export async function updateCategory(data: z.infer<typeof categorySchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = categorySchema.safeParse(data);
   if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID danh mục." };
@@ -79,6 +87,9 @@ export async function updateCategory(data: z.infer<typeof categorySchema>) {
 }
 
 export async function deleteCategory(id: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     // Check if category has children
     const children = await prisma.category.count({ where: { parentId: id } });

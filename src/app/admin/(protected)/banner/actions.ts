@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const bannerSchema = z.object({
   id: z.number().optional(),
@@ -15,6 +17,9 @@ const bannerSchema = z.object({
 });
 
 export async function createBanner(data: z.infer<typeof bannerSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const parsed = bannerSchema.safeParse(data);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ" };
@@ -32,6 +37,9 @@ export async function createBanner(data: z.infer<typeof bannerSchema>) {
 }
 
 export async function updateBanner(data: z.infer<typeof bannerSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const parsed = bannerSchema.safeParse(data);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ" };
@@ -54,6 +62,9 @@ export async function updateBanner(data: z.infer<typeof bannerSchema>) {
 }
 
 export async function deleteBanner(id: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     await prisma.banner.delete({ where: { id } });
     revalidatePath("/");

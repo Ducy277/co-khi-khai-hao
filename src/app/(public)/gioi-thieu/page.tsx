@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const metadata = {
   title: "Giới thiệu | Cơ Khí Khải Hào",
@@ -22,9 +23,10 @@ export default async function AboutPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-6 md:p-8 prose prose-slate max-w-none">
           <div
             dangerouslySetInnerHTML={{
-              __html:
+              __html: sanitizeHtml(
                 aboutFull?.value ||
-                "<p>Với hơn 10 năm hoạt động trong ngành cơ khí, Cơ Khí Khải Hào tập trung cung cấp phụ tùng chính hãng và dịch vụ gia công theo yêu cầu.</p>",
+                "<p>Với hơn 10 năm hoạt động trong ngành cơ khí, Cơ Khí Khải Hào tập trung cung cấp phụ tùng chính hãng và dịch vụ gia công theo yêu cầu.</p>"
+              ),
             }}
           />
         </div>

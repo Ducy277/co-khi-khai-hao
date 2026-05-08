@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const productSchema = z.object({
   id: z.number().optional(),
@@ -28,6 +30,9 @@ const productSchema = z.object({
 });
 
 export async function createProduct(data: z.infer<typeof productSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = productSchema.safeParse(data);
   if (!result.success) return { error: result.error.issues[0]?.message };
 
@@ -73,6 +78,9 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
 }
 
 export async function updateProduct(data: z.infer<typeof productSchema>) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   const result = productSchema.safeParse(data);
   if (!result.success) return { error: result.error.issues[0]?.message };
   if (!result.data.id) return { error: "Thiếu ID sản phẩm." };
@@ -147,6 +155,9 @@ export async function updateProduct(data: z.infer<typeof productSchema>) {
 }
 
 export async function deleteProduct(id: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     await prisma.product.delete({
       where: { id },
@@ -163,6 +174,9 @@ export async function quickUpdateProduct(
   id: number,
   data: { isFeatured?: boolean; isActive?: boolean; price?: number | null; priceOnRequest?: boolean }
 ) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: "Unauthorized" };
+
   try {
     await prisma.product.update({
       where: { id },

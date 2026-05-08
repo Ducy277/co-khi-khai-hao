@@ -17,7 +17,10 @@ const robotoMono = Roboto_Mono({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://cokhikhaihao.vn";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
     template: "%s | Cơ Khí Khải Hào",
     default: "Cơ Khí Khải Hào - Phụ Tùng Cơ Khí Chính Hãng",
@@ -25,6 +28,17 @@ export const metadata: Metadata = {
   description:
     "Cung cấp phụ tùng cơ khí chính hãng: ổ bi, bánh răng, bu lông, dây đai. Gia công cơ khí theo yêu cầu. Liên hệ báo giá ngay.",
   keywords: ["phụ tùng cơ khí", "ổ bi", "bánh răng", "bu lông", "gia công cơ khí", "khải hào"],
+  openGraph: {
+    title: "Cơ Khí Khải Hào - Phụ Tùng Cơ Khí Chính Hãng",
+    description: "Cung cấp phụ tùng cơ khí chính hãng: ổ bi, bánh răng, bu lông, dây đai. Gia công cơ khí theo yêu cầu. Liên hệ báo giá ngay.",
+    url: BASE_URL,
+    siteName: "Cơ Khí Khải Hào",
+    locale: "vi_VN",
+    type: "website",
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
 };
 
 export default async function RootLayout({

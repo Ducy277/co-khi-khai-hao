@@ -13,12 +13,12 @@ export default function Footer() {
               <div className="w-10 h-10 bg-primary flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white fill-current" />
               </div>
-              <h3 className="text-xl font-bold text-white tracking-tight">Cơ Khí Khải Hào</h3>
+              <h3 className="text-xl font-bold text-white tracking-tight">{process.env.NEXT_PUBLIC_SITE_NAME || "Cơ Khí Khải Hào"}</h3>
             </div>
             <p className="text-sm leading-relaxed border-l-2 border-primary pl-4 text-slate-300">
               Nhà cung cấp vật tư cơ khí & dịch vụ gia công chính xác.
               <br/>
-              "Vận hành liên tục - Đồng hành phát triển".
+              &quot;Vận hành liên tục - Đồng hành phát triển&quot;.
             </p>
             <div className="flex space-x-4 pt-2">
               <a href="#" className="w-10 h-10 border border-slate-700 flex items-center justify-center hover:border-primary hover:bg-primary hover:text-white transition-colors">
@@ -60,15 +60,15 @@ export default function Footer() {
             <ul className="space-y-5 text-sm">
               <li className="flex items-start bg-slate-800 p-4 border-l-4 border-primary shadow-sm">
                 <MapPin className="w-5 h-5 text-primary mr-3 shrink-0" />
-                <span className="text-slate-300">123 Đường Công Nghiệp,<br/>KCN ABC, TP.HCM</span>
+                <span className="text-slate-300">{process.env.NEXT_PUBLIC_ADDRESS || "123 Đường Công Nghiệp, KCN ABC, TP.HCM"}</span>
               </li>
               <li className="flex items-center bg-white text-slate-900 p-4 shadow-sm border border-slate-200">
                 <Phone className="w-5 h-5 text-primary mr-3" />
-                <span className="font-bold text-lg">090 123 4567</span>
+                <span className="font-bold text-lg">{process.env.NEXT_PUBLIC_PHONE || "090 123 4567"}</span>
               </li>
               <li className="flex items-center p-2 border-l-2 border-slate-600">
                 <Mail className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
-                <span className="text-primary font-medium hover:underline">admin@ckkh.vn</span>
+                <span className="text-primary font-medium hover:underline">{process.env.NEXT_PUBLIC_EMAIL || "admin@ckkh.vn"}</span>
               </li>
             </ul>
           </div>
@@ -76,7 +76,7 @@ export default function Footer() {
 
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
           <p>
-            &copy; {new Date().getFullYear()} CƠ KHÍ KHẢI HÀO. All rights reserved.
+            &copy; {new Date().getFullYear()} {process.env.NEXT_PUBLIC_SITE_NAME || "CƠ KHÍ KHẢI HÀO"}. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="#" className="hover:text-slate-300">Điều khoản sử dụng</Link>

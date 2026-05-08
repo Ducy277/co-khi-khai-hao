@@ -7,8 +7,13 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: "v8",
-      include: ["src/lib/search.ts", "src/lib/quote-cart.ts", "src/lib/utils.ts"],
-      exclude: [],
+      include: [
+        "src/lib/rate-limit.ts",
+        "src/lib/sanitize.ts",
+        "src/lib/quote-cart.ts",
+        "src/lib/search.ts",
+        "src/lib/utils.ts"
+      ],
       reporter: ["text", "lcov"],
       thresholds: {
         lines: 80,
