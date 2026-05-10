@@ -21,7 +21,8 @@ import { toast } from "sonner";
 import { updateQuoteStatus } from "../actions";
 
 type QuoteFull = QuoteRequest & {
-  items: (QuoteRequestItem & {
+  items: (Omit<QuoteRequestItem, "unitPrice"> & {
+    unitPrice: number | null;
     product: Pick<Product, "id" | "name" | "sku">;
   })[];
 };
@@ -100,9 +101,17 @@ export default function QuoteClientRenderer({ initialQuotes }: QuoteClientProps)
                 <TableCell>{quote.phone}</TableCell>
                 <TableCell>
                   <p className="text-sm font-medium">{quote.items.length} sản phẩm</p>
-                  <div className="text-xs text-slate-500 mt-1 max-w-[220px] truncate" title={quote.items.map((i) => `${i.product.sku} x${i.quantity}`).join(", ")}>
-                    {quote.items.map((i) => `${i.product.sku} x${i.quantity}`).join(", ")}
+                  <div className="text-xs text-slate-500 mt-1 max-w-[220px] truncate" title={quote.items.map((i) => `${i.product.sku} x${i.quantity}${i.unitPrice ? ` (${new Intl.NumberFormat("vi-VN").format(i.unitPrice)}đ)` : ""}`).join(", ")}>
+                    {quote.items.map((i) => `${i.product.sku} x${i.quantity}${i.unitPrice ? ` (${new Intl.NumberFormat("vi-VN").format(i.unitPrice)}đ)` : ""}`).join(", ")}
                   </div>
+                  {(() => {
+                    const total = quote.items.reduce((sum, i) => sum + (i.unitPrice || 0) * i.quantity, 0);
+                    return total > 0 ? (
+                      <div className="text-xs font-semibold text-blue-600 mt-1" title="Tổng tạm tính">
+                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(total)}
+                      </div>
+                    ) : null;
+                  })()}
                 </TableCell>
                 <TableCell>
                   <span className={`inline-flex px-2.5 py-1 rounded-full border text-xs font-medium ${statusBadge[quote.status] || "bg-slate-50 text-slate-600 border-slate-200"}`}>

@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default async function QuoteRequestsPage() {
-  const quotes = await prisma.quoteRequest.findMany({
+  const rawQuotes = await prisma.quoteRequest.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       items: {
@@ -23,6 +23,14 @@ export default async function QuoteRequestsPage() {
       },
     },
   });
+
+  const quotes = rawQuotes.map((q) => ({
+    ...q,
+    items: q.items.map((i) => ({
+      ...i,
+      unitPrice: i.unitPrice ? Number(i.unitPrice) : null,
+    })),
+  }));
 
   return (
     <div className="p-6">

@@ -35,7 +35,9 @@ export interface QuoteEmailData {
     productName: string;
     sku: string;
     quantity: number;
+    unitPrice?: number | null;
   }>;
+  estimatedTotal?: number;
 }
 
 /**
@@ -47,16 +49,28 @@ export async function sendQuoteNotificationToAdmin(data: QuoteEmailData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   const itemsHtml = data.items
-    .map(
-      (item, i) => `
+    .map((item, i) => {
+      const priceStr = item.unitPrice ? new Intl.NumberFormat("vi-VN").format(item.unitPrice) + " đ" : "Liên hệ";
+      const totalStr = item.unitPrice ? new Intl.NumberFormat("vi-VN").format(item.unitPrice * item.quantity) + " đ" : "—";
+      return `
       <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
         <td style="padding:8px 12px;border:1px solid #e2e8f0;">${i + 1}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;">${escapeHtml(item.productName)}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;font-family:monospace;">${escapeHtml(item.sku)}</td>
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:right;">${priceStr}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:center;">${item.quantity}</td>
-      </tr>`
-    )
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:right;font-weight:bold;">${totalStr}</td>
+      </tr>`;
+    })
     .join("");
+
+  const totalHtml = (data.estimatedTotal && data.estimatedTotal > 0) ? `
+      <tr>
+        <td colspan="5" style="padding:10px 12px;border:1px solid #e2e8f0;text-align:right;font-weight:bold;background:#eef2ff;">Tổng tạm tính:</td>
+        <td style="padding:10px 12px;border:1px solid #e2e8f0;text-align:right;font-weight:bold;color:#b91c1c;background:#eef2ff;">
+          ${new Intl.NumberFormat("vi-VN").format(data.estimatedTotal)} đ
+        </td>
+      </tr>` : "";
 
   const html = `
 <!DOCTYPE html>
@@ -102,10 +116,15 @@ export async function sendQuoteNotificationToAdmin(data: QuoteEmailData) {
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:left;">#</th>
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:left;">Tên sản phẩm</th>
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:left;">SKU</th>
+            <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:right;">Đơn giá</th>
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:center;">SL</th>
+            <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:right;">Thành tiền</th>
           </tr>
         </thead>
-        <tbody>${itemsHtml}</tbody>
+        <tbody>
+          ${itemsHtml}
+          ${totalHtml}
+        </tbody>
       </table>
 
       <!-- CTA -->
@@ -144,15 +163,27 @@ export async function sendQuoteConfirmationToCustomer(data: QuoteEmailData) {
   const phone = process.env.NEXT_PUBLIC_PHONE || "090 123 4567";
 
   const itemsHtml = data.items
-    .map(
-      (item, i) => `
+    .map((item, i) => {
+      const priceStr = item.unitPrice ? new Intl.NumberFormat("vi-VN").format(item.unitPrice) + " đ" : "Liên hệ";
+      const totalStr = item.unitPrice ? new Intl.NumberFormat("vi-VN").format(item.unitPrice * item.quantity) + " đ" : "—";
+      return `
       <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
         <td style="padding:8px 12px;border:1px solid #e2e8f0;">${escapeHtml(item.productName)}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;font-family:monospace;">${escapeHtml(item.sku)}</td>
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:right;">${priceStr}</td>
         <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:center;">${item.quantity}</td>
-      </tr>`
-    )
+        <td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:right;font-weight:bold;">${totalStr}</td>
+      </tr>`;
+    })
     .join("");
+
+  const totalHtml = (data.estimatedTotal && data.estimatedTotal > 0) ? `
+      <tr>
+        <td colspan="4" style="padding:10px 12px;border:1px solid #e2e8f0;text-align:right;font-weight:bold;background:#eef2ff;">Tổng tạm tính:</td>
+        <td style="padding:10px 12px;border:1px solid #e2e8f0;text-align:right;font-weight:bold;color:#b91c1c;background:#eef2ff;">
+          ${new Intl.NumberFormat("vi-VN").format(data.estimatedTotal)} đ
+        </td>
+      </tr>` : "";
 
   const html = `
 <!DOCTYPE html>
@@ -181,10 +212,15 @@ export async function sendQuoteConfirmationToCustomer(data: QuoteEmailData) {
           <tr style="background:#1e3a5f;color:#ffffff;">
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:left;">Sản phẩm</th>
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:left;">SKU</th>
+            <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:right;">Đơn giá</th>
             <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:center;">SL</th>
+            <th style="padding:8px 12px;border:1px solid #1e3a5f;text-align:right;">Thành tiền</th>
           </tr>
         </thead>
-        <tbody>${itemsHtml}</tbody>
+        <tbody>
+          ${itemsHtml}
+          ${totalHtml}
+        </tbody>
       </table>
 
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:14px 18px;">

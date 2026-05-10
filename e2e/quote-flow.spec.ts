@@ -28,7 +28,7 @@ test.describe("Quote Flow", () => {
       await page.fill('input[name="email"]', "test@example.com");
 
       // 7. Submit
-      await page.getByRole("button", { name: "Gửi yêu cầu báo giá" }).click();
+      await page.getByRole("button", { name: /Gửi yêu cầu (báo giá|đặt hàng)/i }).click();
 
       // 8. Thông báo thành công hiển thị
       await expect(page.locator("text=Gửi yêu cầu thành công!")).toBeVisible();
@@ -45,20 +45,27 @@ test.describe("Quote Flow", () => {
     // Ta nên thêm item trực tiếp qua script hoặc test riêng rẻ.
     // Thực thi script JS để ép có 1 item trong localStorage quoteCart.
     await page.addInitScript(() => {
-      window.localStorage.setItem('quoteCart', JSON.stringify([{
-        product: { id: 1, name: "Test Product", sku: "TEST-SKU", imageUrl: "/test.jpg" },
-        quantity: 1
-      }]));
+      window.localStorage.setItem('ckkh_quote_cart_v1', JSON.stringify({
+        items: [{
+          productId: 1,
+          name: "Test Product",
+          slug: "test-product",
+          sku: "TEST-SKU",
+          price: null,
+          priceOnRequest: true,
+          quantity: 1
+        }],
+        updatedAt: new Date().toISOString()
+      }));
     });
 
     await page.goto("/bao-gia");
     
     // Click gửi luôn không điền gì
-    await page.getByRole("button", { name: "Gửi yêu cầu báo giá" }).click();
+    await page.getByRole("button", { name: /Gửi yêu cầu (báo giá|đặt hàng)/i }).click();
 
     // Thông báo lỗi xuất hiện
-    await expect(page.locator("text=Vui lòng nhập họ tên")).toBeVisible();
-    await expect(page.locator("text=Vui lòng nhập số điện thoại")).toBeVisible();
+    await expect(page.locator("text=Vui lòng nhập đầy đủ họ tên và số điện thoại")).toBeVisible();
   });
 
   test("Rate limit hoạt động", async ({ request }) => {

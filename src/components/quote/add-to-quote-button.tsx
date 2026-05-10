@@ -29,7 +29,7 @@ export default function AddToQuoteButton({ product }: AddToQuoteButtonProps) {
       imageUrl: product.imageUrl,
     });
 
-    toast.success("Đã thêm sản phẩm vào giỏ báo giá");
+    toast.success("Đã thêm sản phẩm vào giỏ");
   };
 
   return (

@@ -54,10 +54,10 @@ export async function POST(request: Request) {
       new Set(payload.items.map((item) => item.productId)),
     );
 
-    // Lấy thông tin sản phẩm (cần name + sku để gửi email)
+    // Lấy thông tin sản phẩm (cần name + sku để gửi email, và price để lưu unitPrice)
     const products = await prisma.product.findMany({
       where: { id: { in: uniqueProductIds }, isActive: true },
-      select: { id: true, name: true, sku: true },
+      select: { id: true, name: true, sku: true, price: true, priceOnRequest: true },
     });
 
     if (products.length !== uniqueProductIds.length) {
@@ -79,16 +79,36 @@ export async function POST(request: Request) {
         email: payload.email || null,
         note: payload.note || null,
         items: {
-          create: payload.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })),
+          create: payload.items.map((item) => {
+            const p = productMap.get(item.productId);
+            const unitPrice = p && !p.priceOnRequest && p.price ? p.price : null;
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: unitPrice,
+            };
+          }),
         },
       },
       select: { id: true },
     });
 
     // Chuẩn bị data email
+    let estimatedTotal = 0;
+    const emailItems = payload.items.map((item) => {
+      const p = productMap.get(item.productId);
+      const unitPrice = p && !p.priceOnRequest && p.price ? Number(p.price) : null;
+      if (unitPrice) {
+        estimatedTotal += unitPrice * item.quantity;
+      }
+      return {
+        productName: p?.name ?? "Sản phẩm",
+        sku: p?.sku ?? "—",
+        quantity: item.quantity,
+        unitPrice: unitPrice,
+      };
+    });
+
     const emailData = {
       quoteId: created.id,
       customerName: payload.customerName,
@@ -96,11 +116,8 @@ export async function POST(request: Request) {
       phone: payload.phone,
       email: payload.email,
       note: payload.note,
-      items: payload.items.map((item) => ({
-        productName: productMap.get(item.productId)?.name ?? "Sản phẩm",
-        sku: productMap.get(item.productId)?.sku ?? "—",
-        quantity: item.quantity,
-      })),
+      items: emailItems,
+      estimatedTotal,
     };
 
     // Gửi email song song — không block response nếu email lỗi

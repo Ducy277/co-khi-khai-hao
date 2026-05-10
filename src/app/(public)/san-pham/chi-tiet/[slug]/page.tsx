@@ -298,12 +298,6 @@ export default async function ProductDetailPage({ params }: Props) {
                   </Button>
                 </a>
               </div>
-
-              <div className="mt-3 border-t border-slate-100 pt-3">
-                <p className="text-[11px] text-slate-400 font-medium flex items-center justify-center">
-                  <Award className="w-3.5 h-3.5 mr-1 text-primary" /> Bảo hành chính hãng 12 tháng.
-                </p>
-              </div>
             </div>
           </div>
         </div>

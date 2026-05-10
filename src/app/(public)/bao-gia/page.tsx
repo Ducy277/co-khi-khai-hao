@@ -61,6 +61,16 @@ export default function QuoteCartPage() {
     [items],
   );
 
+  const estimatedTotal = useMemo(
+    () => items.reduce((sum, item) => sum + (item.priceOnRequest ? 0 : (item.price || 0)) * item.quantity, 0),
+    [items],
+  );
+
+  const isAllPriced = useMemo(
+    () => items.length > 0 && items.every((i) => !i.priceOnRequest && i.price !== null && i.price > 0),
+    [items],
+  );
+
   const handleQtyChange = (productId: number, nextQty: number) => {
     updateItemQuantity(productId, nextQty);
     setItems(getQuoteCart().items);
@@ -69,7 +79,7 @@ export default function QuoteCartPage() {
   const handleRemove = (productId: number) => {
     removeItemFromQuoteCart(productId);
     setItems(getQuoteCart().items);
-    toast.success("Đã xóa sản phẩm khỏi giỏ báo giá");
+    toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
   };
 
   const handleInput = (field: keyof QuoteForm, value: string) => {
@@ -80,7 +90,7 @@ export default function QuoteCartPage() {
     event.preventDefault();
 
     if (items.length === 0) {
-      toast.error("Giỏ báo giá đang trống");
+      toast.error("Giỏ hàng đang trống");
       return;
     }
 
@@ -142,7 +152,7 @@ export default function QuoteCartPage() {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Giỏ Yêu Cầu Báo Giá</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Giỏ hàng</h1>
             <p className="text-slate-500 mt-1">Hiện có {totalQty} sản phẩm trong giỏ.</p>
           </div>
           {items.length > 0 && (
@@ -186,7 +196,7 @@ export default function QuoteCartPage() {
             {items.length === 0 ? (
               <div className="p-10 text-center">
                 <ShoppingBag className="w-14 h-14 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-600 font-medium">Giỏ báo giá của bạn đang trống</p>
+                <p className="text-slate-600 font-medium">Giỏ hàng của bạn đang trống</p>
                 <p className="text-sm text-slate-500 mt-1 mb-6">Hãy thêm sản phẩm từ trang chi tiết để gửi yêu cầu.</p>
                 <Link href="/san-pham">
                   <Button className="bg-blue-600 hover:bg-blue-700">Xem sản phẩm</Button>
@@ -247,6 +257,20 @@ export default function QuoteCartPage() {
                     </div>
                   </div>
                 ))}
+                
+                {estimatedTotal > 0 && (
+                  <div className="p-4 bg-slate-50 flex flex-col items-end border-t-2 border-slate-200">
+                    <div className="flex items-center gap-4">
+                      <span className="text-slate-600 font-medium">Tổng tạm tính:</span>
+                      <span className="text-xl font-bold text-blue-700">
+                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(estimatedTotal)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 italic">
+                      (Chưa bao gồm thuế VAT và phí vận chuyển)
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -292,7 +316,7 @@ export default function QuoteCartPage() {
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Đang gửi...
                   </>
                 ) : (
-                  "Gửi yêu cầu báo giá"
+                  isAllPriced ? "Gửi yêu cầu đặt hàng" : "Gửi yêu cầu báo giá"
                 )}
               </Button>
             </form>

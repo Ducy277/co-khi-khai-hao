@@ -88,11 +88,11 @@ describe("quotePayloadSchema — Validation", () => {
     }
   });
 
-  it("items rỗng [] → lỗi 'Giỏ báo giá đang trống'", () => {
+  it("items rỗng [] → lỗi 'Giỏ hàng đang trống'", () => {
     const result = quotePayloadSchema.safeParse({ ...validPayload, items: [] });
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe("Giỏ báo giá đang trống");
+      expect(result.error.issues[0].message).toBe("Giỏ hàng đang trống");
     }
   });
 
