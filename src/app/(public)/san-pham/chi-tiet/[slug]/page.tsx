@@ -172,19 +172,19 @@ export default async function ProductDetailPage({ params }: Props) {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="bg-white border border-slate-200 shadow-sm mb-12 flex flex-col lg:flex-row lg:h-[500px]">
 
-          <div className="w-full lg:w-[42%] lg:border-r border-slate-200 bg-slate-50 flex items-center justify-center p-4 shrink-0">
+          <div className="w-full lg:w-[42%] lg:border-r border-b lg:border-b-0 border-slate-200 bg-slate-50 flex items-center justify-center p-4 sm:p-6 shrink-0">
             <ProductGallery images={product.images} productName={product.name} />
           </div>
 
           <div className="w-full lg:w-[58%] flex flex-col bg-white overflow-y-auto">
-            <div className="sticky top-0 z-10 bg-white flex items-center justify-between border-b border-slate-100 px-6 py-3">
+            <div className="lg:sticky lg:top-0 z-10 bg-white flex items-center justify-between border-b border-slate-100 px-4 sm:px-6 py-3">
               <span className="text-white font-bold text-[11px] px-3 py-1 bg-slate-800 tracking-wider">
                 {product.category.name}
               </span>
               <span className="text-primary font-mono font-medium text-xs border border-primary px-2 py-1 bg-blue-50">SKU: {product.sku}</span>
             </div>
 
-            <div className="flex flex-col flex-1 p-6">
+            <div className="flex flex-col flex-1 p-4 sm:p-6">
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-[1.2] mb-4">
                 {product.name}
               </h1>
@@ -275,7 +275,7 @@ export default async function ProductDetailPage({ params }: Props) {
               )}
 
               {/* Nút hành động */}
-              <div className="mt-auto grid grid-cols-3 gap-2.5">
+              <div className="mt-auto hidden lg:grid grid-cols-3 gap-3 pt-6">
                 <AddToQuoteButton
                   product={{
                     id: product.id,
@@ -288,13 +288,13 @@ export default async function ProductDetailPage({ params }: Props) {
                   }}
                 />
                 <a href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO || "0901234567"}`} target="_blank" rel="noopener noreferrer" className="block w-full">
-                  <Button size="lg" className="bg-[#0068FF] hover:bg-blue-700 text-white w-full h-12 font-semibold text-xs rounded-none transition-all">
-                    <MessageSquare className="w-4 h-4 mr-2" /> Zalo
+                  <Button size="lg" className="bg-[#0068FF] hover:bg-blue-700 text-white w-full h-14 font-semibold text-sm rounded-md transition-all shadow-lg">
+                    <MessageSquare className="w-5 h-5 mr-2" /> Zalo
                   </Button>
                 </a>
                 <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0901234567"}`} className="block w-full">
-                  <Button size="lg" variant="outline" className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full h-12 font-semibold border-2 rounded-none text-xs transition-all">
-                    <Phone className="w-4 h-4 mr-2" /> Hotline
+                  <Button size="lg" variant="outline" className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full h-14 font-semibold border-2 rounded-md text-sm transition-all shadow-lg">
+                    <Phone className="w-5 h-5 mr-2" /> Hotline
                   </Button>
                 </a>
               </div>
