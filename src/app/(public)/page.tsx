@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
+import HeroCarousel from "@/components/home/hero-carousel";
 import {
   ArrowRight,
   Settings,
@@ -28,7 +29,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [latestProducts, categories, featuredProducts, heroBanner] =
+  const [latestProducts, categories, featuredProducts, heroBanners] =
     await Promise.all([
       prisma.product.findMany({
         where: { isActive: true },
@@ -53,7 +54,7 @@ export default async function HomePage() {
         },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.banner.findFirst({
+      prisma.banner.findMany({
         where: { isActive: true },
         orderBy: { sortOrder: "asc" },
       }),
@@ -177,35 +178,7 @@ export default async function HomePage() {
           <div className="flex-1 w-full flex flex-col gap-10 min-w-0">
             
             {/* Hero Banner */}
-            <div className="w-full relative min-h-[220px] lg:min-h-[300px] flex items-stretch border border-slate-200 overflow-hidden bg-slate-900 group shrink-0 rounded-2xl shadow-sm">
-              <Link href="/san-pham" className="absolute inset-0 z-20"></Link>
-              {/* Background Image */}
-              <Image 
-                src={(heroBanner?.image && heroBanner.image.length > 0) ? heroBanner.image : "/hero_banner_machining.png"} 
-                alt={heroBanner?.title || "Vật Tư Cơ Khí Khải Hào"} 
-                fill 
-                className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/40 to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute inset-0 z-10 flex flex-col justify-center p-8 md:p-12 pointer-events-none w-full md:w-2/3">
-                <span className="text-blue-400 font-bold tracking-widest text-xs uppercase mb-2">Cơ Khí Khải Hào</span>
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-                  Giải Pháp <span className="text-primary">Vật Tư</span> & <br/>Gia Công Toàn Diện
-                </h1>
-                <p className="text-slate-300 text-sm md:text-base mb-6 max-w-md hidden md:block">
-                  Cung cấp linh kiện cơ khí chính hãng và dịch vụ gia công CNC chính xác cao theo bản vẽ kỹ thuật.
-                </p>
-                <div className="flex items-center gap-3 pointer-events-auto">
-                  <Link href="/san-pham" className="bg-primary hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors shadow-lg shadow-primary/30">
-                    Khám Phá Ngay
-                  </Link>
-                  <Link href="/bao-gia" className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors">
-                    Nhận Báo Giá
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <HeroCarousel banners={heroBanners} />
 
             {/* ── BRANDS MARQUEE ── */}
             <div className="w-full shrink-0 border border-slate-100 bg-white rounded-xl py-5 overflow-hidden flex items-center relative shadow-sm">
@@ -484,66 +457,6 @@ export default async function HomePage() {
                     Xem Tất Cả Sản Phẩm
                   </button>
                 </Link>
-              </div>
-            </div>
-            
-            {/* ── VÌ SAO CHỌN CHÚNG TÔI ── */}
-            <div className="w-full shrink-0 mt-4">
-              <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100">
-                <h2 className="font-bold text-2xl text-slate-900 tracking-tight flex items-center gap-3">
-                  <span className="w-1.5 h-6 bg-primary inline-block rounded-full" />
-                  Tại sao chọn Cơ Khí Khải Hào?
-                </h2>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {whyUsItems.map((item) => (
-                  <div key={item.title} className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-4 hover:border-primary hover:shadow-lg transition-all duration-300 group">
-                    <div className="w-12 h-12 bg-blue-50 rounded-lg group-hover:bg-primary flex items-center justify-center transition-colors shrink-0">
-                      <item.icon className="w-6 h-6 text-primary group-hover:text-white transition-colors" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-800 text-sm mb-1">{item.title}</p>
-                      <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── CTA BANNER LIÊN HỆ ── */}
-            <div className="w-full shrink-0 mb-8 mt-4">
-              <div className="bg-[#1e3a5f] p-8 md:p-10 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-primary opacity-20 rounded-full translate-y-1/3 -translate-x-1/3 blur-2xl"></div>
-                
-                <div className="text-white text-center md:text-left relative z-10">
-                  <h2 className="text-xl md:text-3xl font-bold mb-3">Cần tư vấn hoặc báo giá nhanh?</h2>
-                  <p className="text-blue-100 text-sm md:text-base mb-1">
-                    Đội ngũ kỹ thuật của chúng tôi sẵn sàng hỗ trợ bạn trong giờ hành chính.
-                  </p>
-                  <p className="text-blue-300 text-xs flex items-center gap-2 justify-center md:justify-start">
-                    <Settings className="w-3 h-3 animate-spin-slow" /> {address}
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 shrink-0 relative z-10">
-                  <a
-                    href={`tel:${phone}`}
-                    className="flex items-center justify-center gap-2 bg-white text-[#1e3a5f] font-bold px-6 py-3.5 rounded-lg text-sm hover:bg-blue-50 hover:shadow-lg transition-all"
-                  >
-                    <Phone className="w-4 h-4" />
-                    {phone}
-                  </a>
-                  <a
-                    href={`https://zalo.me/${zalo}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 bg-blue-500 text-white font-bold px-6 py-3.5 rounded-lg text-sm hover:bg-blue-400 hover:shadow-lg transition-all"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Chat Zalo
-                  </a>
-                </div>
               </div>
             </div>
 
