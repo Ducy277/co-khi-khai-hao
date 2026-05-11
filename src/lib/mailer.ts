@@ -160,7 +160,7 @@ export async function sendQuoteNotificationToAdmin(data: QuoteEmailData) {
 export async function sendQuoteConfirmationToCustomer(data: QuoteEmailData) {
   if (!data.email) return; // Không có email khách thì bỏ qua
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Cơ Khí Khải Hào";
-  const phone = process.env.NEXT_PUBLIC_PHONE || "090 123 4567";
+  const phone = process.env.NEXT_PUBLIC_PHONE || "0945 09 09 43";
 
   const itemsHtml = data.items
     .map((item, i) => {

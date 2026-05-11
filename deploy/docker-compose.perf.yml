@@ -1,0 +1,29 @@
+# deploy/docker-compose.perf.yml
+# Chạy: docker compose -f deploy/docker-compose.prod.yml -f deploy/docker-compose.perf.yml --env-file deploy/.env.production up -d --build
+# Mô phỏng: AWS EC2 t3.micro (2 vCPUs, 1 GB RAM tổng)
+
+services:
+  db:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"       # PostgreSQL chiếm 25% tổng CPU (0.5/2 vCPU)
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  web:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"       # Next.js chiếm 1 vCPU (50% tổng)
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  nginx:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"       # Nginx rất nhẹ
+          memory: 64M

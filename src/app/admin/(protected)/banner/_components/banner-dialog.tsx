@@ -23,10 +23,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { createBanner, updateBanner } from "../actions";
 import { toast } from "sonner";
+import { ImageUploadZone } from "@/components/ui/image-upload-zone";
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề không được để trống"),
@@ -41,9 +51,10 @@ interface BannerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   banner: Banner | null;
+  categories: { name: string; slug: string }[];
 }
 
-export default function BannerDialog({ open, onOpenChange, banner }: BannerDialogProps) {
+export default function BannerDialog({ open, onOpenChange, banner, categories }: BannerDialogProps) {
   const [isPending, setIsPending] = useState(false);
   const isEditing = !!banner;
 
@@ -103,7 +114,7 @@ export default function BannerDialog({ open, onOpenChange, banner }: BannerDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Cập nhật banner" : "Thêm banner mới"}</DialogTitle>
           <DialogDescription>
@@ -146,9 +157,9 @@ export default function BannerDialog({ open, onOpenChange, banner }: BannerDialo
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL ảnh</FormLabel>
+                  <FormLabel>Hình ảnh Banner</FormLabel>
                   <FormControl>
-                    <Input placeholder="/uploads/banners/banner-default.jpg" {...field} />
+                    <ImageUploadZone value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -163,7 +174,32 @@ export default function BannerDialog({ open, onOpenChange, banner }: BannerDialo
                   <FormItem>
                     <FormLabel>Link đích</FormLabel>
                     <FormControl>
-                      <Input placeholder="/san-pham" {...field} />
+                      <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn trang đích" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          <SelectGroup>
+                            <SelectLabel>Trang tĩnh</SelectLabel>
+                            <SelectItem value="/">Trang chủ</SelectItem>
+                            <SelectItem value="/san-pham">Tất cả sản phẩm</SelectItem>
+                            <SelectItem value="/bao-gia">Báo giá</SelectItem>
+                            <SelectItem value="/dich-vu">Dịch vụ</SelectItem>
+                            <SelectItem value="/gioi-thieu">Giới thiệu</SelectItem>
+                            <SelectItem value="/lien-he">Liên hệ</SelectItem>
+                          </SelectGroup>
+                          {categories && categories.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>Danh mục sản phẩm</SelectLabel>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat.slug} value={`/san-pham/${cat.slug}`}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

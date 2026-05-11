@@ -25,7 +25,7 @@ test.describe("Admin CMS Flow", () => {
     await expect(table.or(emptyMessage)).toBeVisible();
   });
 
-  test("Upload file không hợp lệ bị chặn qua API", async ({ request }) => {
+  test("Upload file không hợp lệ bị chặn qua API", async () => {
     // Để gọi API bảo vệ cần session cookie. Thay vì lấy cookie phức tạp, ta test qua UI giả lập
     // nhưng Playwright hỗ trợ test API trực tiếp. Tuy nhiên Route /api/upload yêu cầu auth,
     // ta nên test upload qua giao diện CMS.

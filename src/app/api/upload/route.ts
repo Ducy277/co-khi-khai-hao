@@ -42,12 +42,13 @@ export async function POST(request: Request) {
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const originalBuffer = Buffer.from(bytes);
 
-    // Create unique filename based on timestamp and original name
+    // Create unique filename based on timestamp and original name (convert to webp)
     const timestamp = Date.now();
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, ""); // Remove special characters
-    const filename = `${timestamp}-${sanitizedName}`;
+    const originalNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+    const sanitizedName = originalNameWithoutExt.replace(/[^a-zA-Z0-9.\-_]/g, ""); // Remove special characters
+    const filename = `${timestamp}-${sanitizedName}.webp`;
 
     // Define upload path using the requested sub-folder
     const uploadDir = join(process.cwd(), "public", "uploads", safeFolder);
@@ -57,8 +58,12 @@ export async function POST(request: Request) {
 
     const filepath = join(uploadDir, filename);
 
-    // Write file
-    await writeFile(filepath, buffer);
+    // Tối ưu hóa ảnh (Optimize image): Resize max 1920x1920 & Compress to WebP
+    const sharp = (await import("sharp")).default;
+    await sharp(originalBuffer)
+      .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(filepath);
 
     // Returns the relative URL for public access
     const fileUrl = `/uploads/${safeFolder}/${filename}`;

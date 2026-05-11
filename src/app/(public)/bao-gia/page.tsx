@@ -170,7 +170,7 @@ export default function QuoteCartPage() {
         {/* Print header — chỉ hiện khi in */}
         <div className="print-only mb-6 border-b pb-4">
           <h2 className="text-xl font-bold">Cơ Khí Khải Hào</h2>
-          <p className="text-sm text-gray-500">Hotline: 090 123 4567 | Email: admin@ckkh.vn</p>
+          <p className="text-sm text-gray-500">Hotline: 0945 09 09 43 | Email: khaihao.99@gmail.com</p>
           <p className="text-sm text-gray-500">Ngày: {new Date().toLocaleDateString("vi-VN")}</p>
         </div>
 
@@ -206,7 +206,7 @@ export default function QuoteCartPage() {
               <div className="divide-y divide-slate-100">
                 {items.map((item) => (
                   <div key={item.productId} className="p-4 flex gap-4">
-                    <div className="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden relative flex-shrink-0">
+                    <div className="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden relative shrink-0">
                       {item.imageUrl ? (
                         <Image src={item.imageUrl} alt={item.name} fill className="object-contain p-1" />
                       ) : null}

@@ -60,7 +60,10 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       </div>
 
       <ProductForm 
-        initialData={product}
+        initialData={{
+          ...product,
+          price: product.price ? Number(product.price) : null,
+        } as any}
         categories={categories} 
         brands={brands} 
         attributes={attributes} 

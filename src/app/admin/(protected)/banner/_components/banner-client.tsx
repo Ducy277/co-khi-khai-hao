@@ -34,9 +34,10 @@ import BannerDialog from "./banner-dialog";
 
 interface BannerClientProps {
   initialBanners: Banner[];
+  categories: { name: string; slug: string }[];
 }
 
-export default function BannerClientRenderer({ initialBanners }: BannerClientProps) {
+export default function BannerClientRenderer({ initialBanners, categories }: BannerClientProps) {
   const [banners, setBanners] = useState(initialBanners);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
@@ -147,6 +148,7 @@ export default function BannerClientRenderer({ initialBanners }: BannerClientPro
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         banner={selectedBanner}
+        categories={categories}
       />
 
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>

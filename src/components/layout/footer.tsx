@@ -3,7 +3,7 @@ import { Phone, Mail, MapPin, Facebook, Youtube, Zap } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-16 pb-8 font-sans border-t-[4px] border-primary">
+    <footer className="bg-slate-900 text-slate-300 pt-16 pb-8 font-sans border-t-4 border-primary">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           
@@ -58,17 +58,30 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-wider border-b border-slate-700 pb-2">Thông Tin Liên Hệ</h3>
             <ul className="space-y-5 text-sm">
-              <li className="flex items-start bg-slate-800 p-4 border-l-4 border-primary shadow-sm">
-                <MapPin className="w-5 h-5 text-primary mr-3 shrink-0" />
-                <span className="text-slate-300">{process.env.NEXT_PUBLIC_ADDRESS || "123 Đường Công Nghiệp, KCN ABC, TP.HCM"}</span>
+              <li className="flex flex-col gap-4 bg-slate-800 p-4 border-l-4 border-primary shadow-sm text-slate-300">
+                <div>
+                  <div className="flex items-start mb-1">
+                    <MapPin className="w-4 h-4 text-primary mr-2 shrink-0 mt-0.5" />
+                    <strong className="text-white text-xs uppercase tracking-wider">Chi nhánh 1</strong>
+                  </div>
+                  <div className="pl-6">{process.env.NEXT_PUBLIC_ADDRESS || "57/7B Lê Đức Anh, Xã Bà Điểm, Huyện Hóc Môn, Thành phố Hồ Chí Minh, Việt Nam"}</div>
+                </div>
+                <div className="w-full h-px bg-slate-700"></div>
+                <div>
+                  <div className="flex items-start mb-1">
+                    <MapPin className="w-4 h-4 text-primary mr-2 shrink-0 mt-0.5" />
+                    <strong className="text-white text-xs uppercase tracking-wider">Chi nhánh 2</strong>
+                  </div>
+                  <div className="pl-6">{process.env.NEXT_PUBLIC_ADDRESS_2 || "18A Đường ĐT 743, Khu phố 1B, Phường An Phú, Thành phố Thuận An, Tỉnh Bình Dương, Việt Nam"}</div>
+                </div>
               </li>
               <li className="flex items-center bg-white text-slate-900 p-4 shadow-sm border border-slate-200">
                 <Phone className="w-5 h-5 text-primary mr-3" />
-                <span className="font-bold text-lg">{process.env.NEXT_PUBLIC_PHONE || "090 123 4567"}</span>
+                <span className="font-bold text-lg">{process.env.NEXT_PUBLIC_PHONE || "0945 09 09 43"} (Mr. Lâm)</span>
               </li>
               <li className="flex items-center p-2 border-l-2 border-slate-600">
                 <Mail className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
-                <span className="text-primary font-medium hover:underline">{process.env.NEXT_PUBLIC_EMAIL || "admin@ckkh.vn"}</span>
+                <span className="text-primary font-medium hover:underline">{process.env.NEXT_PUBLIC_EMAIL || "khaihao.99@gmail.com"}</span>
               </li>
             </ul>
           </div>

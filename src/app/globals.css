@@ -112,7 +112,7 @@
     background-image: none;
   }
   html {
-    scroll-behavior: smooth;
+    /* Removed scroll-behavior: smooth as it interferes with Next.js navigation scroll restoration */
   }
   ::selection {
     background-color: var(--primary);

@@ -6,9 +6,15 @@ export const metadata = {
 };
 
 export default async function BannerPage() {
-  const banners = await prisma.banner.findMany({
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-  });
+  const [banners, categories] = await Promise.all([
+    prisma.banner.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    }),
+    prisma.category.findMany({
+      select: { name: true, slug: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+  ]);
 
   return (
     <div className="p-6">
@@ -21,7 +27,7 @@ export default async function BannerPage() {
         </div>
       </div>
 
-      <BannerClientRenderer initialBanners={banners} />
+      <BannerClientRenderer initialBanners={banners} categories={categories} />
     </div>
   );
 }

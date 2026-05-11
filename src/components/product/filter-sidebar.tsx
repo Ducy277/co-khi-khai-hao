@@ -285,6 +285,9 @@ export default function ProductFilterSidebar({
       ...(currentCategoryId ? [currentCategoryId] : []),
     ])
   );
+  const [isCategoryOpen, setIsCategoryOpen] = useState(
+    !currentCategoryId || attributes.length === 0
+  );
   const formRef = useRef<HTMLFormElement>(null);
   const debounceRef = useRef<number | null>(null);
 
@@ -437,94 +440,110 @@ export default function ProductFilterSidebar({
         <hr className="border-slate-100" />
 
         {/* Categories */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            Danh mục
-          </label>
-          <ul className="space-y-0.5">
-            <li>
-              <Link
-                href="/san-pham"
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  !currentCategoryId
-                    ? "bg-blue-50 text-blue-700 font-semibold"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                }`}
-              >
-                <Filter className="w-3.5 h-3.5 opacity-60" />
-                Tất cả sản phẩm
-              </Link>
-            </li>
-
-            {topCategories.map((cat) => {
-              const children = childMap.get(cat.id) || [];
-              const hasChildren = children.length > 0;
-              const isExpanded = expandedCats.has(cat.id);
-              const isActive =
-                cat.id === currentCategoryId ||
-                currentParentCategoryId === cat.id;
-
-              return (
-                <li key={cat.id}>
-                  {hasChildren ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedCats((prev) => {
-                          const next = new Set(prev);
-                          if (next.has(cat.id)) next.delete(cat.id);
-                          else next.add(cat.id);
-                          return next;
-                        })
-                      }
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                      }`}
-                    >
-                      <span>{cat.name}</span>
-                      <ChevronRight
-                        className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-                          isExpanded ? "rotate-90" : ""
-                        }`}
-                      />
-                    </button>
-                  ) : (
-                    <Link
-                      href={`/san-pham/${cat.slug}`}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                      }`}
-                    >
-                      <span>{cat.name}</span>
-                    </Link>
-                  )}
-
-                  {isExpanded && hasChildren && (
-                    <ul className="pl-3 mt-0.5 space-y-0.5 border-l-2 border-blue-100 ml-4">
-                      {children.map((child) => (
-                        <li key={child.id}>
-                          <Link
-                            href={`/san-pham/${child.slug}`}
-                            className={`block px-3 py-1.5 rounded-md text-sm transition-colors ${
-                              child.id === currentCategoryId
-                                ? "text-blue-600 font-semibold bg-blue-50"
-                                : "text-slate-500 hover:text-blue-600 hover:bg-slate-50"
-                            }`}
-                          >
-                            {child.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+        <div className="border border-slate-100 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setIsCategoryOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+          >
+            <span className="text-sm font-semibold text-slate-800">
+              Danh mục
+            </span>
+            <ChevronDown
+              className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${
+                isCategoryOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          
+          {isCategoryOpen && (
+            <div className="px-4 py-3">
+              <ul className="space-y-0.5">
+                <li>
+                  <Link
+                    href="/san-pham"
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      !currentCategoryId
+                        ? "bg-blue-50 text-blue-700 font-semibold"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                    }`}
+                  >
+                    <Filter className="w-3.5 h-3.5 opacity-60" />
+                    Tất cả sản phẩm
+                  </Link>
                 </li>
-              );
-            })}
-          </ul>
+
+                {topCategories.map((cat) => {
+                  const children = childMap.get(cat.id) || [];
+                  const hasChildren = children.length > 0;
+                  const isExpanded = expandedCats.has(cat.id);
+                  const isActive =
+                    cat.id === currentCategoryId ||
+                    currentParentCategoryId === cat.id;
+
+                  return (
+                    <li key={cat.id}>
+                      {hasChildren ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedCats((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(cat.id)) next.delete(cat.id);
+                              else next.add(cat.id);
+                              return next;
+                            })
+                          }
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-blue-50 text-blue-700 font-semibold"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                          }`}
+                        >
+                          <span>{cat.name}</span>
+                          <ChevronRight
+                            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                              isExpanded ? "rotate-90" : ""
+                            }`}
+                          />
+                        </button>
+                      ) : (
+                        <Link
+                          href={`/san-pham/${cat.slug}`}
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-blue-50 text-blue-700 font-semibold"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                          }`}
+                        >
+                          <span>{cat.name}</span>
+                        </Link>
+                      )}
+
+                      {isExpanded && hasChildren && (
+                        <ul className="pl-3 mt-0.5 space-y-0.5 border-l-2 border-blue-100 ml-4">
+                          {children.map((child) => (
+                            <li key={child.id}>
+                              <Link
+                                href={`/san-pham/${child.slug}`}
+                                className={`block px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                  child.id === currentCategoryId
+                                    ? "text-blue-600 font-semibold bg-blue-50"
+                                    : "text-slate-500 hover:text-blue-600 hover:bg-slate-50"
+                                }`}
+                              >
+                                {child.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Attribute filters */}

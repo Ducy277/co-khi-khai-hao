@@ -137,6 +137,36 @@ export async function POST(request: Request) {
           });
         }
 
+        // Handle imageUrl update
+        const imageUrl = row["imageUrl"]?.trim();
+        if (imageUrl) {
+          const existingImage = await prisma.productImage.findFirst({
+            where: { productId: existing.id, url: imageUrl },
+          });
+
+          if (!existingImage) {
+            // Unset current primary
+            await prisma.productImage.updateMany({
+              where: { productId: existing.id, isPrimary: true },
+              data: { isPrimary: false },
+            });
+            // Add new image as primary
+            await prisma.productImage.create({
+              data: { productId: existing.id, url: imageUrl, isPrimary: true, sortOrder: 0 },
+            });
+          } else if (!existingImage.isPrimary) {
+            // Make it primary
+            await prisma.productImage.updateMany({
+              where: { productId: existing.id, isPrimary: true },
+              data: { isPrimary: false },
+            });
+            await prisma.productImage.update({
+              where: { id: existingImage.id },
+              data: { isPrimary: true, sortOrder: 0 },
+            });
+          }
+        }
+
         report.updated++;
       } else {
         // Create với slug auto-generated

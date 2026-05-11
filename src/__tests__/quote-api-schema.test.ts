@@ -37,7 +37,7 @@ describe("quotePayloadSchema — Validation", () => {
   it("payload hợp lệ đầy đủ → success: true", () => {
     const result = quotePayloadSchema.safeParse({
       ...validPayload,
-      company: "Công ty ABC",
+      company: "Công ty ",
       email: "test@example.com",
       note: "Giao hàng sáng",
     });

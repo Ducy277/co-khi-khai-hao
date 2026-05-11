@@ -5,6 +5,7 @@ import { UploadCloud, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { MediaGalleryModal } from "@/components/ui/media-gallery-modal";
 
 interface ImageUploadItem {
   url: string;
@@ -20,6 +21,8 @@ interface ImageUploadProps {
 
 export default function ImageUpload({ value, onChange }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [manualUrl, setManualUrl] = useState("");
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -113,6 +116,73 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
           />
         </label>
       </div>
+      
+      <div className="flex gap-2 items-center w-full">
+        <input
+          type="text"
+          value={manualUrl}
+          onChange={(e) => setManualUrl(e.target.value)}
+          placeholder="Hoặc nhập URL ảnh đã có trên hệ thống..."
+          className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (manualUrl) {
+                const newImages = [...value];
+                newImages.push({
+                  url: manualUrl,
+                  alt: "",
+                  isPrimary: newImages.length === 0,
+                  sortOrder: newImages.length,
+                });
+                onChange(newImages);
+                setManualUrl("");
+              }
+            }
+          }}
+        />
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={() => {
+            if (manualUrl) {
+              const newImages = [...value];
+              newImages.push({
+                url: manualUrl,
+                alt: "",
+                isPrimary: newImages.length === 0,
+                sortOrder: newImages.length,
+              });
+              onChange(newImages);
+              setManualUrl("");
+            }
+          }}
+        >
+          Thêm URL
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setIsGalleryOpen(true)}
+        >
+          Thư viện ảnh
+        </Button>
+      </div>
+
+      <MediaGalleryModal
+        open={isGalleryOpen}
+        onOpenChange={setIsGalleryOpen}
+        onSelect={(url) => {
+          const newImages = [...value];
+          newImages.push({
+            url,
+            alt: "",
+            isPrimary: newImages.length === 0,
+            sortOrder: newImages.length,
+          });
+          onChange(newImages);
+        }}
+      />
 
       {value.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">

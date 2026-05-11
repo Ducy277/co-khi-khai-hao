@@ -269,34 +269,8 @@ export default async function CategoryProductsPage({
   const totalPages = Math.ceil(totalCount / limit);
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
-      <div className="bg-white border-b border-slate-200 py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center text-sm text-slate-500 mb-2 flex-wrap">
-            <Link href="/" className="hover:text-blue-600 transition-colors whitespace-nowrap">Trang chủ</Link>
-            <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
-            <Link href="/san-pham" className="hover:text-blue-600 transition-colors whitespace-nowrap">Sản phẩm</Link>
-
-            {currentCategory.parent && (
-              <>
-                <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
-                <Link href={`/san-pham/${currentCategory.parent.slug}`} className="hover:text-blue-600 transition-colors whitespace-nowrap">
-                  {currentCategory.parent.name}
-                </Link>
-              </>
-            )}
-
-            <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
-            <span className="text-slate-800 font-medium whitespace-nowrap">{currentCategory.name}</span>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900">
-            {q ? `Tìm kiếm trong "${currentCategory.name}": ${q}` : currentCategory.name}
-          </h1>
-          <p className="text-slate-500 mt-2">Hiển thị {products.length} trên tổng {totalCount} sản phẩm.</p>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
+    <div className="bg-slate-50 min-h-screen pb-20 pt-6">
+      <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           <MobileFilterWrapper>
             <ProductFilterSidebar
@@ -311,7 +285,34 @@ export default async function CategoryProductsPage({
             />
           </MobileFilterWrapper>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0 flex flex-col gap-6">
+            
+            {/* Page Header & Breadcrumb */}
+            <div className="bg-white border border-slate-200 p-5 md:p-6 shadow-sm rounded-xl">
+              <div className="flex items-center text-sm text-slate-500 mb-2 flex-wrap">
+                <Link href="/" className="hover:text-blue-600 transition-colors whitespace-nowrap">Trang chủ</Link>
+                <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
+                <Link href="/san-pham" className="hover:text-blue-600 transition-colors whitespace-nowrap">Sản phẩm</Link>
+
+                {currentCategory.parent && (
+                  <>
+                    <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
+                    <Link href={`/san-pham/${currentCategory.parent.slug}`} className="hover:text-blue-600 transition-colors whitespace-nowrap">
+                      {currentCategory.parent.name}
+                    </Link>
+                  </>
+                )}
+
+                <ChevronRight className="w-4 h-4 mx-1 sm:mx-2 text-slate-300 shrink-0" />
+                <span className="text-slate-800 font-medium whitespace-nowrap">{currentCategory.name}</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                {q ? `Tìm kiếm trong "${currentCategory.name}": ${q}` : currentCategory.name}
+              </h1>
+              <p className="text-sm text-slate-500 mt-2">Hiển thị {products.length} trên tổng số {totalCount} sản phẩm.</p>
+            </div>
+
+            {/* Product grid */}
             {products.length === 0 ? (
               <div className="bg-white p-12 rounded-xl border border-slate-200 text-center">
                 <Settings className="w-16 h-16 text-slate-200 mx-auto mb-4" />
@@ -322,7 +323,7 @@ export default async function CategoryProductsPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-2 sm:gap-3 lg:gap-4">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

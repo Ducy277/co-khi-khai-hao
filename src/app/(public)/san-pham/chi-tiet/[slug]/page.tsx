@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, Award, Settings } from "lucide-react";
+import { ChevronRight, Phone, MessageSquare, CheckCircle2, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 import ProductGallery from "@/components/product/product-gallery";
@@ -287,12 +287,12 @@ export default async function ProductDetailPage({ params }: Props) {
                     imageUrl: product.images[0]?.url,
                   }}
                 />
-                <a href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO || "0901234567"}`} target="_blank" rel="noopener noreferrer" className="block w-full">
+                <a href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO || "0945090943"}`} target="_blank" rel="noopener noreferrer" className="block w-full">
                   <Button size="lg" className="bg-[#0068FF] hover:bg-blue-700 text-white w-full h-14 font-semibold text-sm rounded-md transition-all shadow-lg">
                     <MessageSquare className="w-5 h-5 mr-2" /> Zalo
                   </Button>
                 </a>
-                <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0901234567"}`} className="block w-full">
+                <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0945090943"}`} className="block w-full">
                   <Button size="lg" variant="outline" className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full h-14 font-semibold border-2 rounded-md text-sm transition-all shadow-lg">
                     <Phone className="w-5 h-5 mr-2" /> Hotline
                   </Button>
@@ -345,22 +345,22 @@ export default async function ProductDetailPage({ params }: Props) {
               <p className="text-slate-300 text-sm leading-relaxed mb-6 border-l-2 border-primary pl-3">
                 Chuyên viên của Cơ Khí Khải Hào sẵn sàng hỗ trợ đo lường, lựa chọn đúng mã sản phẩm và tư vấn kỹ thuật chuyên sâu.
               </p>
-              <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0901234567"}`} className="flex items-center gap-3 bg-slate-900 border border-slate-700 p-4 hover:border-primary transition-all mb-4 group">
+              <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0945090943"}`} className="flex items-center gap-3 bg-slate-900 border border-slate-700 p-4 hover:border-primary transition-all mb-4 group">
                 <div className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 text-white">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Hotline 24/7</div>
-                  <div className="font-bold text-lg group-hover:text-primary transition-colors">{process.env.NEXT_PUBLIC_PHONE || "090 123 4567"}</div>
+                  <div className="font-bold text-lg group-hover:text-primary transition-colors">{process.env.NEXT_PUBLIC_PHONE || "0945 09 09 43"} (Mr. Lâm)</div>
                 </div>
               </a>
-               <a href={`mailto:${process.env.NEXT_PUBLIC_EMAIL || "admin@ckkh.vn"}`} className="flex items-center gap-3 bg-slate-900 border border-slate-700 p-4 hover:border-primary transition-all group">
+               <a href={`mailto:${process.env.NEXT_PUBLIC_EMAIL || "khaihao.99@gmail.com"}`} className="flex items-center gap-3 bg-slate-900 border border-slate-700 p-4 hover:border-primary transition-all group">
                 <div className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 text-white">
                   <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Email Gửi Bản Vẽ</div>
-                  <div className="font-bold text-sm group-hover:text-primary transition-colors">{process.env.NEXT_PUBLIC_EMAIL || "admin@ckkh.vn"}</div>
+                  <div className="font-bold text-sm group-hover:text-primary transition-colors">{process.env.NEXT_PUBLIC_EMAIL || "khaihao.99@gmail.com"}</div>
                 </div>
               </a>
             </div>
@@ -424,10 +424,10 @@ export default async function ProductDetailPage({ params }: Props) {
             }}
           />
         </div>
-        <a href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO || "0901234567"}`} target="_blank" rel="noopener noreferrer" className="w-14 h-14 flex items-center justify-center bg-[#0068FF] text-white rounded-md shrink-0 shadow-sm border border-[#0068FF]">
+        <a href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO || "0945090943"}`} target="_blank" rel="noopener noreferrer" className="w-14 h-14 flex items-center justify-center bg-[#0068FF] text-white rounded-md shrink-0 shadow-sm border border-[#0068FF]">
           <MessageSquare className="w-6 h-6" />
         </a>
-        <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0901234567"}`} className="w-14 h-14 flex items-center justify-center border-2 border-emerald-600 text-emerald-700 bg-emerald-50 rounded-md shrink-0 shadow-sm">
+        <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0945090943"}`} className="w-14 h-14 flex items-center justify-center border-2 border-emerald-600 text-emerald-700 bg-emerald-50 rounded-md shrink-0 shadow-sm">
           <Phone className="w-6 h-6" />
         </a>
       </div>

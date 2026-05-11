@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   Search,
   Phone,
@@ -37,14 +38,15 @@ export default function HeaderClient() {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-20 gap-4 lg:gap-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="w-12 h-12 bg-primary flex items-center justify-center transition-all group-hover:bg-blue-700">
-              <Zap className="w-6 h-6 text-white fill-current" />
-            </div>
-            <div className="leading-none flex flex-col justify-center">
-              <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-0.5">Cơ Khí</div>
-              <div className="text-xl font-bold text-slate-900 uppercase tracking-tight">Khải Hào</div>
-            </div>
+          <Link href="/" className="flex items-center shrink-0 group">
+            <Image 
+              src="/logo.png" 
+              alt="Cơ Khí Khải Hào Logo" 
+              width={200}
+              height={48}
+              className="h-12 w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* Navigation Links — Desktop */}
@@ -144,11 +146,11 @@ export default function HeaderClient() {
               </li>
             ))}
             <li className="px-6 py-5 bg-blue-50 mt-2 border-t border-blue-100">
-              <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0901234567"}`} className="flex items-center gap-3 text-primary font-bold">
+              <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "0945090943"}`} className="flex items-center gap-3 text-primary font-bold">
                 <div className="w-8 h-8 bg-primary text-white flex flex-col items-center justify-center shadow-sm">
                   <Phone className="w-4 h-4 fill-current" />
                 </div>
-                Hotline: {process.env.NEXT_PUBLIC_PHONE || "090 123 4567"}
+                Hotline: {process.env.NEXT_PUBLIC_PHONE || "0945 09 09 43"}
               </a>
             </li>
           </ul>

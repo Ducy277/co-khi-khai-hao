@@ -15,8 +15,6 @@ import {
   Truck,
   Award,
   Headphones,
-  Phone,
-  MessageCircle,
   ShoppingCart,
   CheckCircle,
   type LucideIcon,
@@ -82,8 +80,8 @@ export default async function HomePage() {
         url: BASE_URL,
         description:
           "Chuyên cung cấp vật tư phụ tùng cơ khí công nghiệp uy tín. Ổ bi, bánh răng, dây đai chính hãng. Dịch vụ gia công chi tiết máy theo bản vẽ.",
-        telephone: "+84901234567",
-        email: "admin@ckkh.vn",
+        telephone: "+84945090943",
+        email: "khaihao.99@gmail.com",
       },
     ],
   };
@@ -96,33 +94,6 @@ export default async function HomePage() {
     "khop-noi": Link2,
     "xich-tai": Gauge,
   };
-
-  const whyUsItems = [
-    {
-      icon: ShieldCheck,
-      title: "Hàng chính hãng",
-      desc: "100% xuất xứ rõ ràng, có CO/CQ đầy đủ, cam kết chất lượng từ nhà máy.",
-    },
-    {
-      icon: Truck,
-      title: "Giao hàng toàn quốc",
-      desc: "Đóng gói kỹ, giao nhanh trong 24–48h nội thành và 2–5 ngày tỉnh thành khác.",
-    },
-    {
-      icon: Award,
-      title: "Kinh nghiệm 10+ năm",
-      desc: "Đội ngũ kỹ thuật chuyên sâu, tư vấn lựa chọn đúng vật tư theo từng ứng dụng.",
-    },
-    {
-      icon: Headphones,
-      title: "Hỗ trợ sau bán hàng",
-      desc: "Bảo hành rõ ràng, hỗ trợ kỹ thuật miễn phí trong suốt quá trình sử dụng.",
-    },
-  ];
-
-  const phone = process.env.NEXT_PUBLIC_PHONE || "0901234567";
-  const zalo = process.env.NEXT_PUBLIC_ZALO || "0901234567";
-  const address = process.env.NEXT_PUBLIC_ADDRESS || "TP. Hồ Chí Minh";
 
   const partnerBrands = ["SKF", "NSK", "BANDO", "OPTIBELT", "KOYO", "TIMKEN", "FAG", "THK", "MITSUBOSHI"];
 
@@ -182,9 +153,9 @@ export default async function HomePage() {
 
             {/* ── BRANDS MARQUEE ── */}
             <div className="w-full shrink-0 border border-slate-100 bg-white rounded-xl py-5 overflow-hidden flex items-center relative shadow-sm">
-              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10"></div>
-              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10"></div>
-              <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
+              <div className="absolute left-0 top-0 bottom-0 w-24 bg-linear-to-r from-white to-transparent z-10"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-white to-transparent z-10"></div>
+              <div className="flex w-max animate-marquee hover:paused items-center">
                 {/* Đúp đôi danh sách để tạo hiệu ứng vòng lặp vô tận */}
                 {[1, 2].map((group) => (
                   <div key={group} className="flex items-center justify-around w-max px-10 gap-20">
@@ -306,7 +277,7 @@ export default async function HomePage() {
             <div className="w-full shrink-0 my-4">
               <div className="bg-slate-900 rounded-2xl overflow-hidden relative group border border-slate-800">
                 <div className="absolute inset-0 opacity-20 bg-[url('/hero_banner_machining.png')] bg-cover bg-center mix-blend-overlay transition-transform duration-1000 group-hover:scale-105"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/50"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-slate-900 via-slate-900/90 to-slate-900/50"></div>
                 
                 <div className="relative p-8 md:p-10 lg:p-12 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
                   <div className="flex-1 text-center lg:text-left">
@@ -386,7 +357,7 @@ export default async function HomePage() {
             <div className="w-full shrink-0">
               <div className="flex flex-col mb-6 items-center lg:items-start text-center lg:text-left">
                 <h2 className="font-bold text-2xl text-slate-900 tracking-tight flex items-center gap-3">
-                  <span className="w-1.5 h-6 bg-blue-500 inline-block rounded-full hidden lg:block" />
+                  <span className="w-1.5 h-6 bg-blue-500 rounded-full hidden lg:inline-block" />
                   Sản phẩm mới cập nhật
                 </h2>
                 <p className="text-sm text-slate-500 mt-1 lg:ml-5">Khám phá các vật tư và linh kiện vừa được bổ sung vào hệ thống</p>
