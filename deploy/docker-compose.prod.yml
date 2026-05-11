@@ -96,6 +96,7 @@ services:
 volumes:
   postgres_data:     # Dữ liệu PostgreSQL (persistent)
   uploads_data:      # Ảnh upload của sản phẩm (persistent)
+    external: true   # Volume được tạo thủ công, không để Compose xóa/tạo lại
 
 # ── Networks ───────────────────────────────────────────────────────────────────
 networks:
