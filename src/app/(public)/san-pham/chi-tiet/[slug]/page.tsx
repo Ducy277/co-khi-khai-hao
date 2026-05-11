@@ -172,7 +172,7 @@ export default async function ProductDetailPage({ params }: Props) {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="bg-white border border-slate-200 shadow-sm mb-12 flex flex-col lg:flex-row lg:h-[500px]">
 
-          <div className="w-full lg:w-[42%] lg:border-r border-b lg:border-b-0 border-slate-200 bg-slate-50 flex items-center justify-center p-4 sm:p-6 shrink-0">
+          <div className="w-full lg:w-[42%] lg:border-r border-b lg:border-b-0 border-slate-200 bg-slate-50 flex items-center justify-center p-4 sm:p-6 shrink-0 h-72 sm:h-96 lg:h-full">
             <ProductGallery images={product.images} productName={product.name} />
           </div>
 
