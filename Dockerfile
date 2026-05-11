@@ -23,6 +23,8 @@ COPY . .
 RUN npx prisma generate
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Cho phép Node.js dùng nhiều RAM hơn mức mặc định trước khi báo lỗi Heap Out Of Memory
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 RUN npm run build
  

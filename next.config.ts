@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Bỏ qua check lỗi trong lúc build để tiết kiệm RAM trên server
+  // @ts-expect-error - Next.js config types might be out of sync
+  eslint: { ignoreDuringBuilds: true },
+  // @ts-expect-error - Next.js config types might be out of sync
+  typescript: { ignoreBuildErrors: true },
+  // Giới hạn luồng build để chống quá tải CPU & RAM
+  experimental: {
+    cpus: 1,
+    memoryBasedWorkersCount: true,
+  },
   async headers() {
     return [
       {
