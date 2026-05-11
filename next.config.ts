@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactCompiler: true,
   images: {
+    // Ảnh từ /uploads/ được serve bởi Nginx trực tiếp (không qua /_next/image).
+    // Dùng component <UploadImage> tại src/components/ui/upload-image.tsx
+    // để tự động set unoptimized=true cho đường dẫn /uploads/*.
     remotePatterns: [
       {
         protocol: "https",
